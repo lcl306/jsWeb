@@ -3,7 +3,7 @@ var log4js = require('log4js');
 log4js.configure({
 	appenders :[
 		{type:'console',category:'console'},
-		{type:'dateFile',filename:'logs/log',pattern:'_yyyy-MM-dd',maxLogSize:1024,alwaysIncludePattern:false,backups:4,category:'fileLog'}	
+		{type:'dateFile',filename:'../logs/log',pattern:'_yyyy-MM-dd',maxLogSize:1024,alwaysIncludePattern:false,backups:4,category:'fileLog'}	
 	],
 	replaceConsole : true,   //代替console
 	levels:{
