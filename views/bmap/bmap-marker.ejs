@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+	<!-- 根目录是app.js定义的public -->
+	<script src="/javascripts/base.js"></script>
+	<script src="/javascripts/jquery.json-2.2.min.js"></script>
+	
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=A4749739227af1618f7b0d1b588c0e85"></script>
+	<!-- 加载百度地图样式信息窗口 -->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.js"></script>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.css" />
+	<!--加载鼠标绘制工具-->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+	<!-- marker添加 -->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool_min.js"></script>
+	<!-- 加载城市列表 -->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/CityList/1.2/src/CityList_min.js"></script>
+	<!-- RichMarker -->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/RichMarker/1.2/src/RichMarker_min.js"></script>
+	<!-- MarkerClusterer -->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+	<title>地图展示</title>
+
+	<style type="text/css">
+		body, html{
+			width: 100%;
+			height: 100%;
+			margin:0;
+			font-family:"微软雅黑";
+			font-size:14px;
+		}
+		#l-map {
+			width:100%; 
+			height:700px;
+			overflow: hidden;
+		}
+		li{
+			line-height:28px;
+		}
+
+		/*cityList*/
+		.cityList{
+			height: 320px;
+			width:372px;
+			overflow-y:auto;
+		}
+		.sel_container{
+			z-index:9999;
+			font-size:12px;
+			position:absolute;
+			right:0px;
+			top:0px;
+			width:140px;
+			background:rgba(255,255,255,0.8);
+			height:30px;
+			line-height:30px;
+			padding:5px;
+		}
+		.map_popup {
+			position: absolute;
+			z-index: 200000;
+			width: 382px;
+			height: 344px;
+			right:0px;
+			top:40px;
+		}
+		.map_popup .popup_main { 
+			background:#fff;
+			border: 1px solid #8BA4D8;
+			height: 100%;
+			overflow: hidden;
+			position: absolute;
+			width: 100%;
+			z-index: 2;
+		}
+		.map_popup .title {
+			background: url("http://map.baidu.com/img/popup_title.gif") repeat scroll 0 0 transparent;
+			color: #6688CC;
+			font-weight: bold;
+			height: 24px;
+			line-height: 25px;
+			padding-left: 7px;
+		}
+		.map_popup button {
+			background: url("http://map.baidu.com/img/popup_close.gif") no-repeat scroll 0 0 transparent;
+			cursor: pointer;
+			height: 12px;
+			position: absolute;
+			right: 4px;
+			top: 6px;
+			width: 12px;
+		}
+
+		/*infowindow*/
+		.infoWinContent{font-size:12px;}
+		.infoWinContent .title{background:url(title.jpg) no-repeat;height:42px;width:272px;}
+		.infoWinContent .title strong{font-size:14px;line-height:42px;padding:0 10px 0 5px;}
+		.infoWinContent .title .price{color:#FFFF00;}
+		.infoWinContent .list{width:268px;margin:5px,0,5px,0 !important;padding:0;border-top:solid 1px #4FA5FC;background:#fff;}
+		.infoWinContent .list ul{margin:0;padding:0;list-style:none;}
+		.infoWinContent .list ul li {width:255px;border-bottom:solid 1px #4FA5FC;padding:2px 0;}
+		.infoWinContent .list ul .last{border:none;}
+		.infoWinContent .list ul img{width:53px;height:42px;margin-right:5px;}
+		.infoWinContent .list ul p{padding:0;margin:0;}
+		.infoWinContent .rmb{float:right;color:#EB6100;font-size:14px;font-weight:bold;}
+		.infoWinContent a{color:#0041D9;text-decoration:none;}
+	</style>
+</head>
+<body>
+	<div id="l-map"></div>
+	<!--城市列表-->
+	<div class="sel_container"><strong id="curCity">上海市</strong> [<a id="curCityText" href="javascript:void(0)">更换城市</a>]</div>
+	<div class="map_popup" id="cityList" style="display:none;">
+		<div class="popup_main">
+			<div class="title">城市列表</div>
+			<div class="cityList" id="citylist_container"></div>
+			<button id="popup_close"></button>
+		</div>
+	</div>
+	检索内容：<input type="text" id="searchContent" size="20"/> <input type="button" id="searchPoint" value="检索"/>
+	<input type="button" value="添加标注" onclick="mkrTool.open()" />
+	<!--<input type="button" value="关闭添加标注" onclick="mkrTool.close()" />-->
+</body>
+</html>
+<script type="text/javascript">
+	// 百度地图API功能
+	var map = new BMap.Map("l-map");    // 创建Map实例
+	//var point = new BMap.Point(116.403694,39.927552); //北京
+	var point = new BMap.Point(121.50, 31.22); //上海
+	map.centerAndZoom(point, 14); // 定位中心点（经度、纬度）,显示范围（1是整个地球，越大越精细）
+	map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+	map.setCurrentCity("上海");          // 设置地图显示的城市 此项是必须设置的
+	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+	map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+	var mapHandler = function(){
+		console.debug(this);
+	}
+	//map常用事件
+	//load Map.centerAndZoom()方法时会触发此事件，该方法必须写在map.centerAndZoom前
+	//zoomend map缩放结束后
+	//moveend map移动结束后
+	map.addEventListener("click", mapHandler);
+	map.removeEventListener("click",mapHandler);
+	map.addEventListener("dragend", mapHandler);
+    
+	/////////////////////////////////////////////////////////////////marker
+	
+	function addMarker(lng,lat,win){
+		var marker = new BMap.Marker(new BMap.Point(lng,lat));
+		//marker.enableDragging();
+		markerWin(marker, win);
+		map.addOverlay(marker);
+		return marker;
+	}
+
+	function markerWin(marker, win){
+		var winHandler = function(e){
+			if(e.target===e.currentTarget){
+				marker.openInfoWindow(win);
+			}
+		};
+		marker.addEventListener("click", winHandler);
+	}
+
+	function addMarkerCluster(pixs,wins){	
+	    var markers = [];
+		var i = 0;
+		$(pixs).each(function(){
+			var marker = new BMap.Marker(new BMap.Point(this.x,this.y));
+			markerWin(marker, wins[i++]);
+			markers.push(marker);
+		});
+		new BMapLib.MarkerClusterer(map, {markers:markers});
+
+		//map放大缩小、移动时，必须重新绑定openInfoWindow事件，否则点击cluster或者地图zoom，move时，marker和绑定的infoWindow不匹配
+		map.addEventListener("zoomend",function(){
+			var j = 0;
+			$(markers).each(function(){
+				markerWin(this, wins[j++]);
+			});
+		});
+	}
+
+	function getWindowContent(tt, datas){
+		var div = $('<div class="infoWinContent">');
+		var list = $('<div class="list">').appendTo(div);
+		var ul = $("<ul>").appendTo(list);
+		var li = $("<li>").appendTo(ul);
+		$(datas).each(function(){
+			for(p in this){
+				var e = this[p];
+				$("<span>").text(e.label+"：").appendTo(li);
+				$('<span class="wt">').text(e.val).appendTo(li);
+				$('<input type="hidden" class="wh" value="'+e.val+'">').appendTo(li);
+				$('<br>').appendTo(li);
+			}
+		});
+		var eBtn = $('<input type="button" id="w_edit" value="编辑">').appendTo(div);
+		var oBtn = $('<input type="button" id="e_ok" value="确定">').appendTo(div);
+		eBtn.on("click", function(){
+			$(".wt").hide();
+			$(".wh").attr("type", "text");
+			oBtn.show();
+			eBtn.hide();
+		});
+		oBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
+			//服务器保存
+			$(".wt").show();
+			$(".wh").attr("type", "hidden");
+			$(".wt").each(function(){
+				$(this).text($(this).next(".wh").val());
+			});
+			eBtn.show();
+			oBtn.hide();
+		});
+		oBtn.hide();
+		var w = new BMap.InfoWindow(div[0], {width:250,/*height:150,*/title:tt.label+tt.val});
+		w.addEventListener("close", function(){
+			div.find(".wt").show();
+			div.find(".wh").attr("type", "hidden");
+			eBtn.show();
+			oBtn.hide();
+		});
+		return w;
+	}
+	
+	$.post("/bmap/get_datas",{}, function(ds){
+		var shop1 =ds[0];
+		var shop2 =ds[1];
+		var shop3 =ds[2];
+		var shop4 =ds[3];
+		var pixs = [shop1.pix,shop3.pix];
+		var wins = [getWindowContent(shop1.title,shop1.detail), getWindowContent(shop3.title,shop3.detail)];
+		addMarkerCluster(pixs, wins);
+		//addMarker(shop1.pix.x,shop1.pix.y,getWindowContent(shop1.title,shop1.detail));
+		//addMarker(shop3.pix.x,shop3.pix.y,getWindowContent(shop3.title,shop3.detail));
+		//addMarker(shop2.pix.x,shop2.pix.y,getWindowContent(shop2.title,shop2.detail));
+		var pixs2 = [shop2.pix,shop4.pix];
+		var wins2 = [getWindowContent(shop2.title,shop2.detail),getWindowContent(shop4.title,shop4.detail)];
+		addMarkerCluster(pixs2,wins2);
+	});
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////编辑
+
+	var overlays = [];
+	var styleOptions = {
+        strokeColor:"red",    //边线颜色。
+        fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 3,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid' //边线的样式，solid或dashed。
+    }
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //是否开启绘制模式
+        enableDrawingTool: true, //是否显示工具栏
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+            offset: new BMap.Size(200, 5), //偏离值
+        },
+        circleOptions: styleOptions, //圆的样式
+        polylineOptions: styleOptions, //线的样式
+        polygonOptions: styleOptions, //多边形的样式
+        rectangleOptions: styleOptions //矩形的样式
+    });  
+	 //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('overlaycomplete', function(e){
+		e.overlay.addEventListener("click", function(ee){
+			if(ee.target===ee.currentTarget){
+				this.openInfoWindow(getEditDiv(this));
+			}
+		});
+		overlays.push(e.overlay);
+	});
+
+	function getEditDiv(overlay){
+		var div = $("<div>");
+		var sval = overlay.sval?overlay.sval:"";
+		$("<span>").text("店铺：").appendTo(div);
+		var inp = $('<input type="text" class="weh" value="'+sval+'">').appendTo(div);
+		var oBtn = $('<input type="button" id="e_ok" value="确定">').appendTo(div);
+		var dBtn = $('<input type="button" id="d_ok" value="删除">').appendTo(div);
+		oBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
+			//服务器添加
+			/*var data ={};
+			data.shop_title = "店铺";
+			data.shop_nm = inp.val();
+			data.lng = overlay.getPosition().lng;
+			data.lat = overlay.getPosition().lat;
+			$.post("/bmap-marker-saveShop", data, function(){
+				
+			});*/
+			overlay.sval = inp.val();
+			overlay.infoWindow.close();
+		});
+		dBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
+			//服务器删除
+			map.removeOverlay(overlay);
+		});
+		var w = new BMap.InfoWindow(div[0], {width:300,height:20})
+		overlay.infoWindow = w;
+		return w;
+	}
+
+
+	///////////////////////////////////////////////////////////////////////////////////////添加marker
+	var mkrTool = new BMapLib.MarkerTool(map, {autoClose: true, followText: "添加标注"});
+	mkrTool.addEventListener("markend", function(evt){ 
+		var marker = evt.marker;
+		marker.openInfoWindow(getEditDiv(marker));
+		marker.addEventListener("click", function(ee){
+			if(ee.target===ee.currentTarget){
+				this.openInfoWindow(getEditDiv(this));
+			}
+		});
+	});
+
+   ///////////////////////////////////////////////////////////////////////////////////////城市list
+
+	var myCl = new BMapLib.CityList({container : "citylist_container", map : map});
+
+	// 给城市点击时，添加相关操作
+	myCl.addEventListener("cityclick", function(e){
+		// 修改当前城市显示
+		document.getElementById("curCity").innerHTML = e.name;
+		// 点击后隐藏城市列表
+		document.getElementById("cityList").style.display = "none";
+	});
+	// 给“更换城市”链接添加点击操作
+	document.getElementById("curCityText").onclick = function() {
+		var cl = document.getElementById("cityList");
+		if (cl.style.display == "none") {
+			cl.style.display = "";
+		} else {
+			cl.style.display = "none";
+		}	
+	};
+	// 给城市列表上的关闭按钮添加点击操作
+	document.getElementById("popup_close").onclick = function() {
+		var cl = document.getElementById("cityList");
+		if (cl.style.display == "none") {
+			cl.style.display = "";
+		} else {
+			cl.style.display = "none";
+		}	
+	};
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	$("#searchPoint").bind("click", function(){
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map}
+		});
+		local.search($("#searchConent").val());
+	});
+</script>

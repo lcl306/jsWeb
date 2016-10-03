@@ -1,0 +1,5 @@
+[2016-10-03 20:56:13.029] [INFO] fileLog - GET /bmap
+[2016-10-03 20:56:13.068] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
+[2016-10-03 20:56:13.069] [INFO] fileLog - GET /javascripts/base.js
+[2016-10-03 20:56:13.229] [DEBUG] fileLog - aaa
+[2016-10-03 20:56:13.233] [INFO] fileLog - POST /bmap/get_datas
