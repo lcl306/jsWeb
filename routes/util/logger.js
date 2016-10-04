@@ -12,8 +12,8 @@ log4js.configure({
 	}
 });
 
-var logger = log4js.getLogger('console'); //如果需要的话，也可以改成log4js.getLogger('console');
+var logger = log4js.getLogger('fileLog'); //生产的话，也可以改成log4js.getLogger('fileLog');
 exports.logger = logger;  //使用时var logger = require('./util/logger').logger; logger.debug("aaa");
 exports.use = function(app){
 	app.use(log4js.connectLogger(logger, {level:'INFO', format:':method :url'}));  //app的级别是info
-}
+};
