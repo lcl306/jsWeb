@@ -21,7 +21,7 @@ router.post("/get_datas", function(req, res, next){
 	datas.push(shop3);
 	datas.push(shop4);
 	//logger.debug("[%s]aaa[%d]","bbb",98754321);
-	throw new Error('something wrong here');  //可以被domain截获
+	//throw new Error('something wrong here');  //可以被domain截获
 	res.status(200).json(datas);
 });
 // express中，默认module.exports={}, exports=module.exports
