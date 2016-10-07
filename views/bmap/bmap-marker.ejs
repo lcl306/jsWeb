@@ -197,7 +197,9 @@
 				var e = this[p];
 				$("<span>").text(e.label+"：").appendTo(li);
 				$('<span class="wt">').text(e.val).appendTo(li);
-				$('<input type="hidden" class="wh" value="'+e.val+'">').appendTo(li);
+				$('<input type="hidden" class="wh" value="'+e.val+'">').on("change", function(){
+					e.val = this.value;
+				}).appendTo(li);
 				$('<br>').appendTo(li);
 			}
 		});
@@ -211,13 +213,18 @@
 		});
 		oBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
 			//服务器保存
-			$(".wt").show();
-			$(".wh").attr("type", "hidden");
-			$(".wt").each(function(){
-				$(this).text($(this).next(".wh").val());
+			var data ={};
+			data.title = {label:tt.label,val:tt.val};
+			data.detail = datas;
+			$.post("/bmap/save_data", data, function(rtn){
+				$(".wt").show();
+				$(".wh").attr("type", "hidden");
+				$(".wt").each(function(){
+					$(this).text($(this).next(".wh").val());
+				});
+				eBtn.show();
+				oBtn.hide();
 			});
-			eBtn.show();
-			oBtn.hide();
 		});
 		oBtn.hide();
 		var w = new BMap.InfoWindow(div[0], {width:250,/*height:150,*/title:tt.label+tt.val});
@@ -289,16 +296,15 @@
 		var dBtn = $('<input type="button" id="d_ok" value="删除">').appendTo(div);
 		oBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
 			//服务器添加
-			/*var data ={};
+			var data ={};
 			data.shop_title = "店铺";
 			data.shop_nm = inp.val();
 			data.lng = overlay.getPosition().lng;
 			data.lat = overlay.getPosition().lat;
-			$.post("/bmap-marker-saveShop", data, function(){
-				
-			});*/
-			overlay.sval = inp.val();
-			overlay.infoWindow.close();
+			postJson("/bmap/save_shop", data, function(rtn){
+				overlay.sval = inp.val();
+				overlay.infoWindow.close();
+			});
 		});
 		dBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
 			//服务器删除
