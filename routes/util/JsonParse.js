@@ -41,10 +41,10 @@ JsonParseBase = function(){
 		放入twig的数组，返回数组的当前元素（即为当前twig）
 		@twigsName 即为twig的数组名
 	*/
-	this.setTwigs = function(branch, twigsName, idx, preIdx){
+	JsonParseBase.prototype.setTwigs = function(branch, twigsName, idx, preIdx){
 		if(!branch[twigsName]) branch[twigsName] = [];
-		var idx = typeof idx=="object"?idx.toString():idx;  //idx是object对象，应该变为string对象才能和preIdx比较
-		var preIdx = typeof preIdx=="object"?preIdx.toString():preIdx; //同上
+		idx = typeof idx=="object"?idx.toString():idx;  //idx是object对象，应该变为string对象才能和preIdx比较
+		preIdx = typeof preIdx=="object"?preIdx.toString():preIdx; //同上
 		if(idx!=preIdx) {  //string和int可以用==比较，object不能用==比较
 			branch[twigsName].push({});
 		}
@@ -53,7 +53,28 @@ JsonParseBase = function(){
 };
 
 JsonParse = function(){
+	
 	JsonParseBase.call(this); //将JsonParseBase的所有上下文copy给JsonParse，以继承JsonParseBase中的非prototype的属性和方法
+	
+	this.preIdxArr = [];
+	
+	JsonParse.prototype.setTwigs = function(branch, twigsName, idx, level){
+		level = level || 0;  //如果undefined，就赋值0
+		var preIdx = this.getPreIdx(level);
+		// prototype原型链，用于父类方法的apply调用，apply相当于java的invoke，第一个参数是调用对象，第二个参数是方法（setTwigs）的参数
+		var currTwig = JsonParseBase.prototype.setTwigs.apply(this,[branch, twigsName, idx, preIdx]);
+		this.setPreIdx(level, idx);
+		return currTwig;
+	};
+	
+	this.getPreIdx = function(level){
+		if(!this.preIdxArr[level]) this.preIdxArr[level] = "";
+		return this.preIdxArr[level];
+	};
+	
+	this.setPreIdx = function(level, preIdx){
+		this.preIdxArr[level] = preIdx;
+	};
 };
 
 /**
@@ -67,4 +88,4 @@ var jsonParse = new JsonParse();
 //如果需要导出类，使用module.exports=JsonParse
 //如果需要导出对象，使用moudle.exports=jsonParse
 //如果需要导出方法，使用exports.setLeaf=jsonParse.setLeaf
-exports = module.exports = jsonParse;
+exports = module.exports = JsonParse;

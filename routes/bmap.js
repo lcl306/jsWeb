@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var logger = require('./util/logger').logger;
-var jsonParse = require('./util/JsonParse');
+var JsonParse = require('./util/JsonParse');
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -36,17 +36,18 @@ router.post("/save_shop", function(req,res,next){
 });
 
 router.post("/save_data", function(req,res,next){
+	var jsonParse = new JsonParse();
 	var data = req.body;
 	var rtn = {};
-	var preIdx = "";
+	//var preIdx = "";
 	for(var p in data){
 		var props = jsonParse.parseProp(p);
 		if(props[0]!="detail"){
 			jsonParse.setTwigLeaf(rtn, props[0], props[1], data[p]);
 		}else if(props[0]=="detail"){
-			var branch = jsonParse.setTwigs(rtn, props[0], props[1], preIdx);
+			var branch = jsonParse.setTwigs(rtn, props[0], props[1]);
 			jsonParse.setTwigLeaf(branch, props[2], props[3], data[p]);
-			preIdx = props[1];
+			//preIdx = props[1];
 		}
 	}
 	console.info(rtn.detail[0].mount.val);
