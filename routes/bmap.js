@@ -71,7 +71,7 @@ PRIMARY KEY (`id`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 AUTO_INCREMENT=53973;
- * 
+
 DROP TABLE IF EXISTS `seq_no`;
 CREATE TABLE `seq_no` (
 `name`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
@@ -82,7 +82,7 @@ PRIMARY KEY (`name`)
 )
 ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
- * 
+
 DROP FUNCTION IF EXISTS `currval`;
 DELIMITER ;;
 CREATE FUNCTION `currval`(seq_name VARCHAR(50)) RETURNS varchar(12) CHARSET utf8
@@ -98,7 +98,7 @@ BEGIN
 END
 ;;
 DELIMITER ;
- * 
+
 DROP FUNCTION IF EXISTS `nextval`;
 DELIMITER ;;
 CREATE FUNCTION `nextval`(seq_name VARCHAR(10)) RETURNS varchar(12) CHARSET utf8
@@ -119,7 +119,7 @@ BEGIN
 END
 ;;
 DELIMITER ;
- * 
+
 CREATE TABLE `shop_info` (
 `shop_nm`  varchar(40) NOT NULL ,
 `create_date`  datetime NULL ,
@@ -134,7 +134,7 @@ ALTER TABLE `shop_info`
 ADD COLUMN `info_label`  varchar(40) NULL AFTER `shop_info_id`,
 ADD COLUMN `info_val`  varchar(100) NULL AFTER `info_label`,
 ADD COLUMN `shop_id`  bigint NOT NULL AFTER `info_val`;
- * 
+
 DROP PROCEDURE IF EXISTS `ex_shop_info`;
 DELIMITER ;;
 CREATE PROCEDURE `ex_shop_info`(IN shop_nm VARCHAR(40),OUT ExtReturnVal INT)
@@ -154,35 +154,28 @@ END
 ;;
  **/
 function save(data){
-	db.pool.getConnection(function(err, connection){
-		db.openTrans(connection);
-		var sql = "delete from shop_info where shop_id = ?";
-		var sqlParam = [-1];
-		db.trans(connection, sql, sqlParam, function(result){
-			logger.info("del info ", result);
+	var sql1 = {sql:"delete from shop_info where shop_id = ?", sqlParam : [-1]};
+	var sql2 = {sql:"insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee', 'geee', now())", sqlParam : [data.title.val]};
+	var sql3 = {sql:"insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee2', 'geee2', now())", sqlParam : [data.title.val]};
+	//var sql4 = {sql:"call ex_shop_info(?, @ExtReturnVal);", sqlParam : [data.title.val]};
+	var sqls = [];
+	sqls.push(sql1);
+	sqls.push(sql2);
+	sqls.push(sql3);
+	//sqls.push(sql4);
+	db.batch(sqls, function(err, results){
+		console.info(results);
+		//因为是异步，所有的后续操作，都必须在callback中执行，否则无法取得最新插入的数据
+		var sql = "select * from shop_info i";
+		db.query(sql, function(err, result){
+			for(var p in result){
+				logger.info(result[p].shop_nm+"---"+result[p].shop_id+"---"+result[p].shop_info_id);
+			}
 		});
-		sql = "insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee', 'geee', now())";
-		sqlParam = [data.title.val];
-		db.trans(connection, sql, sqlParam, function(result){
-			logger.info("insert info ", result);
-		});
-		sql = "insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee2', 'geee2', now())";
-		sqlParam = [data.title.val];
-		db.trans(connection, sql, sqlParam);
-		sql = "call ex_shop_info(?, @ExtReturnVal);";
-		db.trans(connection, sql, sqlParam, function(result){
-			logger.info("call info: ", result);
-		});
-		db.release(connection,true);
-	});
-
-	var sql = "select * from shop_info i";
-	db.query(sql, function(result){
+	},function(err, result){
 		console.info(result);
-		/*for(var p in result){
-			logger.info(result[p].shop_nm+"---"+result[p].shop_id);
-		}*/
-	});
+	});	
+	
 }
 
 module.exports = router;

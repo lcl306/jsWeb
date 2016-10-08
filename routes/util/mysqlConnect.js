@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var logger = require('./logger').logger;
+var async = require("async");
 
 MyCon = function(options){
 	
@@ -37,77 +38,75 @@ MyCon = function(options){
 			if(err){
 				//err.code === 'PROTOCOL_CONNECTION_LOST' 表示连接中断
 				logger.error(err.code+": "+err.message);
-				return;
+				connection.release();
+				return callback(err,null);
 			}
 			connection.query(sql, sqlParam, function(err, result){
 				if(err){
 					logger.error(err.code+": "+err.message);
-					return;
+					connection.release();
+					return callback(err, null);
 				}
+				connection.release();  //释放连接（连接释放掉后，可用，不需要重新连接），否则mysql wait_timeout（默认8小时）自动断开连接
 				// 如果是DML操作，result返回操作信息，result.insertId是mysql的主键值
 				// 如果是查询操作，result返回查询结果
-				if(callback) callback(result);
+				callback(null, result); // result是json信息，callback是在连接释放后执行的
 			});
-			connection.release();
-		});
-	}
-	
-	this.batch = function(sqls){
-		var db = this;
-		var results = [];
-		this.pool.getConnection(function(err, connection){
-			db.openTrans(connection);
-			for(var p in sqls){
-				var info = sqls[p];
-				db.trans(connection, info.sql, info.sqlParam, function(result){
-					results.push(result);
-				});
-			}
-			db.release(connection,true);
-		});
-		return results;
-	}
-	
-	this.openTrans = function(connection){
-		//开启事务
-		connection.query("start transaction", function(err, result){
-			if(err){
-				logger.error(err.code+": "+err.message);
-				return;
-			}
 		});
 	};
 	
-	this.release = function(connection, isCommit){
-		if(isCommit){
-			connection.query("COMMIT", function(err, result){
+	/**
+	 * sqls = [{sql:"", sqlParam:[]}]
+	 * callback是commit提交后的信息
+	 * sqlback是每一个DML语句执行后的信息
+	 * */
+	this.batch = function(sqls, callback, sqlback){
+		this.pool.getConnection(function(err, connection){
+			connection.beginTransaction(function(err){
 				if(err){
 					logger.error(err.code+": "+err.message);
-					return;
+					connection.release();
+					return callback(err,null);
 				}
-			});
-		}
-		connection.release();  //释放连接（连接释放掉后，可用，不需要重新连接），否则mysql wait_timeout（默认8小时）自动断开连接
-	};
-	
-	this.trans = function(connection, sql, sqlParam, callback){
-		if(typeof sqlParam == 'function'){
-			callback = sqlParam;
-			sqlParam = [];
-		}
-		sqlParam = sqlParam || [];
-		connection.query(sql, sqlParam, function(err, result){
-			if(err){
-				logger.error(err.code+": "+err.message);
-				connection.query("ROLLBACK", function(err, result){
+				var funcs = [];
+				sqls.forEach(function(info){  //sqls是数组，forEach可以解决for(var i=0; i<sqls.length; i++)中i的闭包问题
+					var func = function(cb){
+						connection.query(info.sql, info.sqlParam, function(err, result){
+							if(err){
+								if(cb) cb(err, null);
+							}else{
+								if(cb) cb(null, result);
+							}
+						});
+					};
+					funcs.push(func);
+				});
+				// 顺序执行函数数组，有点像java的concurrent， 这里的result就是cb(null, result)中的result;err是cb(err, null);中的err
+				async.series(funcs, function(err, result){
 					if(err){
-						logger.error(err.code+": "+err.message);
-						return;
+						connection.rollback(function(){
+							logger.error(err.code+": "+err.message);
+							connection.release();
+							return callback(err, null);
+						});
+					}else{
+						connection.commit(function(err, info){  // info是commit的信息
+							//logger.info("transaction info: " +JSON.stringify(info));
+							if(err){
+								connection.rollback(function(){
+									logger.error(err.code+": "+err.message);
+									connection.release();
+									return callback(err, null);
+								});
+							}else{
+								connection.release();
+								return callback(null, info);
+							}
+						});
+						if(sqlback) sqlback(err, result);
 					}
 				});
-			}else{
-				if(callback) callback(result);
-			}
+			});
 		});
 	};
 	
@@ -128,8 +127,8 @@ MyCon = function(options){
 var myCon = new MyCon({
 	// connection 选项
 	host     : "127.0.0.1",
-	user     : "ksk",
-	password : "123456",
+	user     : "root",
+	password : "",
 	port     : "3306",
 	database : "nodejs",
 	supportBigNumbers : true, //数据库支持bigint或decimal类型列时，需要设此option为true （默认：false）
