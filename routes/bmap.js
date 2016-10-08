@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var logger = require('./util/logger').logger;
 var JsonParse = require('./util/JsonParse');
+var db = require('./util/mysqlConnect');
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -51,11 +52,137 @@ router.post("/save_data", function(req,res,next){
 		}
 	}
 	console.info(rtn.detail[0].mount.val);
+	save(rtn);
 	res.status(200).json(ok());
 });
 
 function ok(){
 	return JSON.stringify({message:"ok"});
+}
+
+/**
+ * 
+DROP TABLE IF EXISTS `seq_id`;
+CREATE TABLE `seq_id` (
+`id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+`name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+PRIMARY KEY (`id`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+AUTO_INCREMENT=53973;
+ * 
+DROP TABLE IF EXISTS `seq_no`;
+CREATE TABLE `seq_no` (
+`name`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+`curr_value`  int(11) NOT NULL ,
+`increment`  int(11) NOT NULL DEFAULT 1 ,
+`curr_no`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+PRIMARY KEY (`name`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+ * 
+DROP FUNCTION IF EXISTS `currval`;
+DELIMITER ;;
+CREATE FUNCTION `currval`(seq_name VARCHAR(50)) RETURNS varchar(12) CHARSET utf8
+    DETERMINISTIC
+BEGIN 
+   DECLARE value varchar(12) DEFAULT '';
+   IF LOCATE('no',seq_name)>0 THEN
+			SELECT curr_no INTO value FROM seq_no WHERE name = seq_name;  
+	 ELSE
+      SELECT id INTO value FROM `seq_id` WHERE name = seq_name;
+	 END IF;
+   RETURN value;
+END
+;;
+DELIMITER ;
+ * 
+DROP FUNCTION IF EXISTS `nextval`;
+DELIMITER ;;
+CREATE FUNCTION `nextval`(seq_name VARCHAR(10)) RETURNS varchar(12) CHARSET utf8
+    DETERMINISTIC
+BEGIN
+  DECLARE `value` INTEGER;
+   IF LOCATE('no', seq_name)>0 THEN
+   SELECT count(*) INTO `value` FROM seq_no WHERE name = seq_name;
+   IF `value`=0 THEN
+    INSERT INTO seq_no VALUES (seq_name, 0, 1, '');
+   END IF;
+   UPDATE seq_no SET curr_value = curr_value+increment, curr_no = LPAD(curr_value,10,'0') WHERE name = seq_name;
+  ELSE
+      DELETE FROM `seq_id` WHERE name=seq_name;
+      INSERT INTO `seq_id`(name) VALUES(seq_name);
+  END IF;
+   RETURN currval(seq_name);
+END
+;;
+DELIMITER ;
+ * 
+CREATE TABLE `shop_info` (
+`shop_nm`  varchar(40) NOT NULL ,
+`create_date`  datetime NULL ,
+`shop_info_id`  bigint NOT NULL AUTO_INCREMENT ,
+PRIMARY KEY (`shop_info_id`),
+INDEX `idx1` (`shop_nm`) USING BTREE 
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8
+;
+ALTER TABLE `shop_info`
+ADD COLUMN `info_label`  varchar(40) NULL AFTER `shop_info_id`,
+ADD COLUMN `info_val`  varchar(100) NULL AFTER `info_label`,
+ADD COLUMN `shop_id`  bigint NOT NULL AFTER `info_val`;
+ * 
+DROP PROCEDURE IF EXISTS `ex_shop_info`;
+DELIMITER ;;
+CREATE PROCEDURE `ex_shop_info`(IN shop_nm VARCHAR(40),OUT ExtReturnVal INT)
+TOP: BEGIN
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	ROLLBACK;
+	SET ExtReturnVal = 0;  -- Failed
+END;
+
+START TRANSACTION;
+	INSERT INTO shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, shop_nm, 'geeCall', 'geee', now());
+	SET ExtReturnVal = 1;
+	SELECT ExtReturnVal;
+	COMMIT;
+END
+;;
+ **/
+function save(data){
+	db.pool.getConnection(function(err, connection){
+		db.openTrans(connection);
+		var sql = "delete from shop_info where shop_id = ?";
+		var sqlParam = [-1];
+		db.trans(connection, sql, sqlParam, function(result){
+			logger.info("del info ", result);
+		});
+		sql = "insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee', 'geee', now())";
+		sqlParam = [data.title.val];
+		db.trans(connection, sql, sqlParam, function(result){
+			logger.info("insert info ", result);
+		});
+		sql = "insert into shop_info(shop_info_id, shop_id, shop_nm, info_label, info_val, create_date) values(nextval('id'), -1, ?, 'gee2', 'geee2', now())";
+		sqlParam = [data.title.val];
+		db.trans(connection, sql, sqlParam);
+		sql = "call ex_shop_info(?, @ExtReturnVal);";
+		db.trans(connection, sql, sqlParam, function(result){
+			logger.info("call info: ", result);
+		});
+		db.release(connection,true);
+	});
+
+	var sql = "select * from shop_info i";
+	db.query(sql, function(result){
+		console.info(result);
+		/*for(var p in result){
+			logger.info(result[p].shop_nm+"---"+result[p].shop_id);
+		}*/
+	});
 }
 
 module.exports = router;
