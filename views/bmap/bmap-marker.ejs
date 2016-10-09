@@ -197,7 +197,7 @@
 				var e = this[p];
 				$("<span>").text(e.label+"：").appendTo(li);
 				$('<span class="wt">').text(e.val).appendTo(li);
-				$('<input type="hidden" class="wh" value="'+e.val+'">').on("change", function(){
+				$('<input type="hidden" class="wh" value="'+e.val+'">').on("blur",function(){
 					e.val = this.value;
 				}).appendTo(li);
 				$('<br>').appendTo(li);
@@ -216,6 +216,7 @@
 			var data ={};
 			data.title = {label:tt.label,val:tt.val};
 			data.detail = datas;
+			console.info(data);
 			$.post("/bmap/save_data", data, function(rtn){
 				$(".wt").show();
 				$(".wh").attr("type", "hidden");
@@ -238,7 +239,7 @@
 	}
 	
 	$.post("/bmap/get_datas",{}, function(ds){
-		var shop1 =ds[0];
+		/*var shop1 =ds[0];
 		var shop2 =ds[1];
 		var shop3 =ds[2];
 		var shop4 =ds[3];
@@ -250,7 +251,10 @@
 		//addMarker(shop2.pix.x,shop2.pix.y,getWindowContent(shop2.title,shop2.detail));
 		var pixs2 = [shop2.pix,shop4.pix];
 		var wins2 = [getWindowContent(shop2.title,shop2.detail),getWindowContent(shop4.title,shop4.detail)];
-		addMarkerCluster(pixs2,wins2);
+		addMarkerCluster(pixs2,wins2);*/
+		$(ds).each(function(){
+			addMarker(this.pix.x,this.pix.y,getWindowContent(this.title,this.detail));
+		});
 	});
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////编辑
@@ -298,6 +302,7 @@
 			//服务器添加
 			var data ={};
 			data.shop_title = "店铺";
+			data.shop_nm_old = sval;
 			data.shop_nm = inp.val();
 			data.lng = overlay.getPosition().lng;
 			data.lat = overlay.getPosition().lat;
@@ -308,7 +313,15 @@
 		});
 		dBtn.css({"background":"blue","color":"#fff"}).on("click", function(){
 			//服务器删除
-			map.removeOverlay(overlay);
+			var data ={};
+			data.shop_title = "店铺";
+			data.shop_nm_old = sval;
+			data.shop_nm = inp.val();
+			data.lng = overlay.getPosition().lng;
+			data.lat = overlay.getPosition().lat;
+			postJson("/bmap/del_shop", data, function(rtn){
+				map.removeOverlay(overlay);
+			});
 		});
 		var w = new BMap.InfoWindow(div[0], {width:300,height:20})
 		overlay.infoWindow = w;

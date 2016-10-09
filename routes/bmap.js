@@ -3,6 +3,8 @@ var router = express.Router();
 var logger = require('./util/logger').logger;
 var JsonParse = require('./util/JsonParse');
 var db = require('./util/mysqlConnect');
+var dbClient = require('./util/mongoConnect').dbClient;
+
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -13,6 +15,23 @@ router.get("/", function(req, res, next){
 router.post("/get_datas", function(req, res, next){
 	//不能用console.debug()进行调试,console.info可以
 	//console.info("aaa");
+	
+	//logger.debug("[%s]aaa[%d]","bbb",98754321);
+	//throw new Error('something wrong here');  //可以被domain截获
+	dbClient.connect(function(err, db){
+		if(!err){
+			var col = db.collection("shop_info");
+			col.find({}).toArray(function(err, result){
+				if(!err){
+					res.status(200).json(result);
+				}
+			});
+		}
+	});
+	
+});
+
+function getData1(){
 	var datas = [];
 	var shop1 = {pix:{x:121.50, y:31.22},title:{label:"店铺：",val:"店1"},detail:[{mount:{label:"总金额",val:2143.33},remark:{label:"注释",val:"旗舰店"}},{mount:{label:"总金额",val:13568.33},remark:{label:"注释",val:"旗舰店"}}]};
 	var shop3 = {pix:{x:121.52, y:31.02},title:{label:"店铺：",val:"店3"},detail:[{mount:{label:"总金额",val:1235.33},remark:{label:"注释",val:"环城店"}}]};
@@ -22,18 +41,39 @@ router.post("/get_datas", function(req, res, next){
 	datas.push(shop2);
 	datas.push(shop3);
 	datas.push(shop4);
-	//logger.debug("[%s]aaa[%d]","bbb",98754321);
-	//throw new Error('something wrong here');  //可以被domain截获
-	res.status(200).json(datas);
-});
+	return datas;
+}
 
 router.post("/save_shop", function(req,res,next){
 	var shop = req.body;  //body已经是json对象
-	console.info(shop);
+	/*console.info(shop);
 	for(var p in shop){   //如果shop是数组，则p为数组下标，获得的是一个对象；如果shop是对象，p为对象属性
 		console.log(shop[p]);
-	}
-	res.status(200).json(ok());
+	}*/
+	var data = {pix:{x:shop.lng,y:shop.lat}, title:{label:shop.shop_title,val:shop.shop_nm}};
+	dbClient.connect(function(err, db){
+		if(!err){
+			var col = db.collection("shop_info");
+			col.find({"title.val":shop.shop_nm_old}).toArray(function(err, result){
+				if(result.length>0){
+					col.update({"title.val":shop.shop_nm_old},{$set:{"title.val":data.title.val}});
+				}else{
+					col.insert(data);
+				}
+				res.status(200).json(ok());
+			});
+		}
+	});
+});
+
+router.post("/del_shop", function(req,res,next){
+	var shop = req.body;
+	dbClient.connect(function(err, db){
+		if(!err){
+			db.collection("shop_info").remove({"title.val":shop.shop_nm_old});
+			res.status(200).json(ok());
+		}
+	});
 });
 
 router.post("/save_data", function(req,res,next){
@@ -52,12 +92,33 @@ router.post("/save_data", function(req,res,next){
 		}
 	}
 	console.info(rtn.detail[0].mount.val);
-	save(rtn);
+	saveSI(rtn);
 	res.status(200).json(ok());
 });
 
 function ok(){
 	return JSON.stringify({message:"ok"});
+}
+
+function saveSI(rtn){
+	dbClient.connect(function(err, db){
+		if(!err){
+			var col = db.collection("shop_info");
+			//col.remove();
+			col.find({"title.val":rtn.title.val},{"detail.mount.val":""}).toArray(function(err, result){
+				if(result.length>0){
+					col.update({"title.val":rtn.title.val},{$set:{"detail":rtn.detail}}/*, function(err, result){
+						console.info(result);
+					}*/);
+				}else{
+					//col.save(rtn, [], function(err, result));
+					col.insert(rtn/*, function(err, result){
+						console.info("insert");
+					}*/);
+				}
+			});
+		}
+	});
 }
 
 /**

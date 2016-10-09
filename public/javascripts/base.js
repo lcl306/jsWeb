@@ -19,3 +19,15 @@ function postJson(url, data, callback, async){
         }
     });
 }
+
+function isDouble(str){								
+	if((str!=null && str.length>1 && str.substring(0,1)=='.') ||
+		(str!=null && str.length>2 && (str.substring(0,2)=='-.' || str.substring(str.length-1)=='.'))){							
+		return false;						
+	}							
+	if(str==parseFloat(str)){							
+		return true;						
+	}else{							
+		return false;						
+	}	
+}

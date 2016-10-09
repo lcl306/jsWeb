@@ -127,8 +127,8 @@ MyCon = function(options){
 var myCon = new MyCon({
 	// connection 选项
 	host     : "127.0.0.1",
-	user     : "root",
-	password : "",
+	user     : "ksk",
+	password : "123456",
 	port     : "3306",
 	database : "nodejs",
 	supportBigNumbers : true, //数据库支持bigint或decimal类型列时，需要设此option为true （默认：false）
