@@ -20,9 +20,9 @@ DbClient = function(url){
 				callback(null, db);
 			}
 		});
-	}
+	};
 };
 
-var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
-
+//var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
+var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
 exports.dbClient = dbClient;

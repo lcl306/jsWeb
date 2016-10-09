@@ -12,6 +12,10 @@ router.get("/", function(req, res, next){
 	//next()  执行注册到app(通过app.use)的下一个function(req, res, next)，如果没有next()，则链接终止
 });
 
+router.get("/edit", function(req,res,next){
+	res.render("bmap/bmap-marker-edit",{});
+});
+
 router.post("/get_datas", function(req, res, next){
 	//不能用console.debug()进行调试,console.info可以
 	//console.info("aaa");
@@ -28,7 +32,6 @@ router.post("/get_datas", function(req, res, next){
 			});
 		}
 	});
-	
 });
 
 function getData1(){
