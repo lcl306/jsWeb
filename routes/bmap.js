@@ -4,6 +4,7 @@ var logger = require('./util/logger').logger;
 var JsonParse = require('./util/JsonParse');
 var db = require('./util/mysqlConnect');
 var dbClient = require('./util/mongoConnect').dbClient;
+var bmapUtil = require("./bmap-util");
 
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
@@ -24,10 +25,28 @@ router.post("/get_datas", function(req, res, next){
 	//throw new Error('something wrong here');  //可以被domain截获
 	dbClient.connect(function(err, db){
 		if(!err){
+			//bmapUtil.mr(db);
+			//bmapUtil.grp(db.collection("shop_info"));
+			bmapUtil.aggr(db.collection("shop_info"));
+			/*db.eval("func_sum_mount()",function(err, result){
+				if(!err){
+					console.info(result);
+				}else{
+					console.error(err);
+				}
+			});*/
+		}
+	});
+	
+
+	dbClient.connect(function(err, db){
+		if(!err){
 			var col = db.collection("shop_info");
 			col.find({}).toArray(function(err, result){
 				if(!err){
 					res.status(200).json(result);
+				}else{
+					console.error(err);
 				}
 			});
 		}

@@ -1,6 +1,9 @@
 var mongoClient = require("mongodb").MongoClient;
 var logger = require('./logger').logger;
 
+/**
+ * http://mongodb.github.io/node-mongodb-native/api-generated/
+ * */
 DbClient = function(url){
 	
 	this.connect = function(callback){
@@ -23,6 +26,6 @@ DbClient = function(url){
 	};
 };
 
-//var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
-var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
+var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
+//var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
 exports.dbClient = dbClient;
