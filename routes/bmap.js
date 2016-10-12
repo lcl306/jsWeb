@@ -9,7 +9,18 @@ var bmapUtil = require("./bmap-util");
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
-	res.render("bmap/bmap-marker", {});
+	dbClient.connect(function(err, db){
+		if(!err){
+			var col = db.collection("shop_info");
+			col.find({}).toArray(function(err, result){
+				if(!err){
+					res.render("bmap/bmap-marker", {result:result});
+				}else{
+					console.error(err);
+				}
+			});
+		}
+	});
 	//next()  执行注册到app(通过app.use)的下一个function(req, res, next)，如果没有next()，则链接终止
 });
 
