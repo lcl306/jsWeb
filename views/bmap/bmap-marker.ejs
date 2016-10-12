@@ -110,6 +110,15 @@
 		.infoWinContent .list ul p{padding:0;margin:0;}
 		.infoWinContent .rmb{float:right;color:#EB6100;font-size:14px;font-weight:bold;}
 		.infoWinContent a{color:#0041D9;text-decoration:none;}
+		
+		.exContainer{
+			z-index:9999;
+			font-size:12px;
+			position:absolute;
+			left:100px;
+			top:20px;
+			width:300px;
+		}
 	</style>
 </head>
 <body>
@@ -123,9 +132,9 @@
 			<button id="popup_close"></button>
 		</div>
 	</div>
-	检索内容：<input type="text" id="searchContent" size="20"/> <input type="button" id="searchPoint" value="检索"/>
+	<div class="exContainer">检索内容：<input type="text" id="searchContent" size="10"/> <input type="button" id="searchPoint" value="检索"/>
 	<input type="button" value="店铺添加" id="edtBtn" />
-	<!--<input type="button" value="关闭添加标注" onclick="mkrTool.close()" />-->
+	<!--<input type="button" value="关闭添加标注" onclick="mkrTool.close()" />--></div>
 	<!-- 《% %》中的内容就是nodejs的语法，用于处理res.rendor中传递的数据 -->
 	<%result.forEach(function(r){
 		var shop_nm = r.title.val;
@@ -302,10 +311,26 @@
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////
+	function getSumContent(datas){
+		var div = $('<div class="sumWinContent">');
+		var list = $('<div class="list">').appendTo(div);
+		var ul = $("<ul>").appendTo(list);
+		var li = $("<li>").appendTo(ul);
+		$(datas).each(function(){
+			$("<span>").text(this.shop_nm+"："+this.mount).appendTo(li);
+				//$('<br>').appendTo(li);
+		});
+		return div[0];
+	}
+	
 	$("#searchPoint").bind("click", function(){
-		var local = new BMap.LocalSearch(map, {
+		/*var local = new BMap.LocalSearch(map, {
 			renderOptions:{map: map}
 		});
-		local.search($("#searchConent").val());
+		local.search($("#searchConent").val());*/
+		var btn = this;
+		$.post("/bmap/showAll", {}, function(datas){
+			btn.openInfoWindow(getSumContent(datas));
+		});
 	});
 </script>

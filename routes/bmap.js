@@ -28,6 +28,14 @@ router.get("/edit", function(req,res,next){
 	res.render("bmap/bmap-marker-edit",{});
 });
 
+router.post("/showAll", function(req,res,next){
+	dbClient.connect(function(err, db){
+		bmapUtil.showAll(db.collection("shop_info"), function(results){
+			res.status(200).json(results);
+		});
+	});
+});
+
 router.post("/get_datas", function(req, res, next){
 	//不能用console.debug()进行调试,console.info可以
 	//console.info("aaa");

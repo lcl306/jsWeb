@@ -62,6 +62,28 @@ function mr(db){
 		}
 	});
  }
+ /**
+  * db.shop_info.group({
+    "key":{"title.val":true},
+    "initial":{shop_nm:"",mount:0},
+    "reduce":function(doc, out){
+        out.shop_nm = doc.title.val;
+        doc.detail.forEach(function(d){
+            if(d.mount) out.mount += d.mount.val;
+        });
+    }
+});
+  * */
+function showAll(collection,callback){
+	collection.group([{"title.val":true}],{},{shop_nm:"",mount:0},
+		"function(doc, out){ out.shop_nm = doc.title.val; doc.detail.forEach(function(d){ if(d.mount) out.mount += d.mount.val;});}",function(err, results){
+			if(err){
+				console.error(err);
+			}else{
+				callback(results);
+			}
+		});
+}
  
  /**
   * aggregate(array[, options], callback)
@@ -89,6 +111,7 @@ function aggr(collection){
 exports.mr = mr;
 exports.grp = grp;
 exports.aggr = aggr;
+exports.showAll = showAll;
 
 /**
  * update(selector, document[, options][, callback])
