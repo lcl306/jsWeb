@@ -139,10 +139,12 @@
 	<%result.forEach(function(r){
 		var shop_nm = r.title.val;
 		var info = "";
-		r.detail.forEach(function(d){
-			if(d.mount) info += d.mount.val;
-			if(d.remark) info += d.remark.val;
-		});
+		if(r.detail){
+			r.detail.forEach(function(d){
+				if(d.mount) info += d.mount.val;
+				if(d.remark) info += d.remark.val;
+			});
+		}
 		%><li><%=shop_nm%>-<%=info%></li><%
 	});%>
 </body>
