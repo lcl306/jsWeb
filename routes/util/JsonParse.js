@@ -1,13 +1,6 @@
 var util = require("util");
 
 JsonParseBase = function(){
-	this.isArray = function(obj){
-		return Object.prototype.toString.call(obj) === '[object Array]';   
-	};
-	
-	this.isInt = function(obj){
-		return obj==parseFloat(obj,10);
-	};
 	
 	this.parseProp = function(prop){
 		var pinfo = prop.split("[");

@@ -1,11 +1,13 @@
 var express = require('express');
 var router = express.Router();
+var events = require('events');
 var logger = require('./util/logger').logger;
 var JsonParse = require('./util/JsonParse');
 var db = require('./util/mysqlConnect');
 var dbClient = require('./util/mongoConnect').dbClient;
 var bmapUtil = require("./bmap-util");
-
+var type = require('./util/type');
+var exec = require('./util/exec');
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -57,7 +59,13 @@ router.post("/get_datas", function(req, res, next){
 		}
 	});
 	
-
+	console.info("isNumber="+type.isNumber(123.23));
+	console.info("isString="+type.isString("aaa"));
+	console.info("isArray="+type.isArray([]));
+	console.info("isFunction="+type.isFunction(function(){
+		return "bbb";
+	}));
+	
 	dbClient.connect(function(err, db){
 		if(!err){
 			var col = db.collection("shop_info");
