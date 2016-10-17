@@ -1,6 +1,8 @@
-/**
- * 解决多次事件，一次回调的问题，返回一个函数
- * 	var done = exec.after(3, function(results){
+var events = require('events');
+var exec = require("../routes/component/util/exec");
+
+var testAfter = function(){
+	var done = exec.after(3, function(results){
 		for(var p in results){
 			console.info(p+"="+results[p]);
 		}
@@ -16,16 +18,6 @@
 	emitter.emit("done", "key-a", "a1-value");
 	emitter.emit("done", "key-b", "b1-value");
 	emitter.emit("done", "key-c", "c1-value");
- */
-after = function(times, callback){
-	var count=0, results={};
-	return function(key, value){
-		count++;
-		results[key] = value;
-		if(count==times){
-			callback(results);
-		}
-	};
-};
+}
 
-exports.after = after;
+exports.testAfter = testAfter;

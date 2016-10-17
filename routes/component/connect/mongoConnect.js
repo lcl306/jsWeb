@@ -1,5 +1,7 @@
 var mongoClient = require("mongodb").MongoClient;
-var logger = require('./logger').logger;
+var logger = require('../register/logger').logger;
+var exec = require('../util/exec');
+var Deferred = require('../util/deferred');
 
 /**
  * http://mongodb.github.io/node-mongodb-native/api-generated/
@@ -24,8 +26,19 @@ DbClient = function(url){
 			}
 		});
 	};
+	
+	this.con = function(){
+		var options = {server:{auto_reconnect:true},db:{safe:true}};
+		//效果同
+		var deferred = new Deferred();
+		mongoClient.connect(url, options, deferred.proxy());
+		return deferred.promise;
+		//var connect = exec.smooth(mongoClient.connect);
+		//return connect(url, options);
+		
+	};
 };
 
-//var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
-var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
+var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
+//var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
 exports.dbClient = dbClient;

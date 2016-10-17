@@ -6,8 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-var logger = require('./routes/util/logger');
-var sessionFilter = require('./routes/util/sessionFilter');
+var logger = require('./routes/component/register/logger');
+var sessionFilter = require('./routes/component/register/sessionFilter');
 
 var routes = require('./routes/index');
 //var users = require('./routes/users');
@@ -20,14 +20,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 //app.use(logger('dev'));
 app.use(session({
 	secret: '79198',
 	name: 'myses.sid',   //这里的name值得是cookie的name，默认cookie的name是：connect.sid
 	cookie: {maxAge: 3600000 },  //设置maxAge单位ms，即30min后session和相应的cookie失效过期
 	resave: false,
-	saveUninitialized: true,
+	saveUninitialized: true
 }));
 logger.use(app);  //日志打印
 app.use(sessionFilter());

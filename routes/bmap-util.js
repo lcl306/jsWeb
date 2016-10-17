@@ -1,3 +1,6 @@
+var Deferred = require("./component/util/deferred");
+var exec = require("./component/util/exec");
+
 /**
  * mapReduce(map, reduce[, options], callback)
  * Options
@@ -74,15 +77,14 @@ function mr(db){
     }
 });
   * */
-function showAll(collection,callback){
-	collection.group([{"title.val":true}],{},{shop_nm:"",mount:0},
-		"function(doc, out){ out.shop_nm = doc.title.val; doc.detail.forEach(function(d){ if(d.mount) out.mount += d.mount.val;});}",function(err, results){
-			if(err){
-				console.error(err);
-			}else{
-				callback(results);
-			}
-		});
+/**
+ * 声明一个查询
+ * */
+function showAll(db){
+	var deferred = new Deferred();
+	db.collection("shop_info").group([{"title.val":true}],{},{shop_nm:"",mount:0},
+		"function(doc, out){ out.shop_nm = doc.title.val; doc.detail.forEach(function(d){ if(d.mount) out.mount += d.mount.val;});}",deferred.proxy());
+	return deferred.promise;
 }
  
  /**

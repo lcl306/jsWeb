@@ -1,5 +1,5 @@
 var mysql = require("mysql");
-var logger = require('./logger').logger;
+var logger = require('../register/logger').logger;
 var async = require("async");
 
 MyCon = function(options){
