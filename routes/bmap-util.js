@@ -1,5 +1,5 @@
 var Deferred = require("./component/util/deferred");
-var exec = require("./component/util/exec");
+var Q = require('q');
 
 /**
  * mapReduce(map, reduce[, options], callback)
@@ -71,9 +71,11 @@ function mr(db){
     "initial":{shop_nm:"",mount:0},
     "reduce":function(doc, out){
         out.shop_nm = doc.title.val;
-        doc.detail.forEach(function(d){
-            if(d.mount) out.mount += d.mount.val;
-        });
+        if(doc.detail){
+	        doc.detail.forEach(function(d){
+	            if(d.mount) out.mount += d.mount.val;
+	        });
+        }
     }
 });
   * */
@@ -81,10 +83,11 @@ function mr(db){
  * 声明一个查询
  * */
 function showAll(db){
-	var deferred = new Deferred();
+	var defer = Q.defer();
 	db.collection("shop_info").group([{"title.val":true}],{},{shop_nm:"",mount:0},
-		"function(doc, out){ out.shop_nm = doc.title.val; doc.detail.forEach(function(d){ if(d.mount) out.mount += d.mount.val;});}",deferred.proxy());
-	return deferred.promise;
+			"function(doc, out){ out.shop_nm = doc.title.val; if(doc.detail) {doc.detail.forEach(function(d){ if(d.mount) out.mount += d.mount.val;});}}",
+			defer.makeNodeResolver());
+	return defer.promise;
 }
  
  /**

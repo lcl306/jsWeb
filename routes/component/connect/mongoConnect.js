@@ -1,7 +1,8 @@
 var mongoClient = require("mongodb").MongoClient;
 var logger = require('../register/logger').logger;
-var exec = require('../util/exec');
+//var exec = require('../util/exec');
 var Deferred = require('../util/deferred');
+var Q = require('q');
 
 /**
  * http://mongodb.github.io/node-mongodb-native/api-generated/
@@ -29,16 +30,32 @@ DbClient = function(url){
 	
 	this.con = function(){
 		var options = {server:{auto_reconnect:true},db:{safe:true}};
-		//效果同
-		var deferred = new Deferred();
+		////////////////////////////////////////////////////////方式1
+		/*var deferred = new Deferred();
 		mongoClient.connect(url, options, deferred.proxy());
-		return deferred.promise;
-		//var connect = exec.smooth(mongoClient.connect);
-		//return connect(url, options);
-		
+		return deferred.promise;*/
+		////////////////////////////////////////////////////////方式2
+		/*var defer = Q.defer();
+		mongoClient.connect(url, options, function(err, db){
+			if(err){
+				defer.reject(err);
+			}else{
+				defer.resolve(db);
+			}
+		});
+		return defer.promise;*/
+		/////////////////////////////////////////////////////////方式3
+		/*var connect = Q.denodeify(mongoClient.connect);
+		return connect(url, options);*/
+		/////////////////////////////////////////////////////////方式4
+		/*var defer = Q.defer();
+		mongoClient.connect(url, options, defer.makeNodeResolver());
+		return defer.promise;*/
+		/////////////////////////////////////////////////////////方式5
+		return Q.nfcall(mongoClient.connect,url, options);
 	};
 };
 
-var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
-//var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
+//var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
+var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
 exports.dbClient = dbClient;

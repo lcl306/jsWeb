@@ -20,4 +20,4 @@ var testAfter = function(){
 	emitter.emit("done", "key-c", "c1-value");
 }
 
-exports.testAfter = testAfter;
+testAfter();

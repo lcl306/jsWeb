@@ -1,3 +1,6 @@
+/**
+ * Q的实现原理，实际开发时用Q，不要用它
+ * */
 var events = require("events");
 var util = require("util");
 

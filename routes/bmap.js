@@ -6,10 +6,7 @@ var JsonParse = require('./component/util/JsonParse');
 var db = require('./component/connect/mysqlConnect');
 var dbClient = require('./component/connect/mongoConnect').dbClient;
 var bmapUtil = require("./bmap-util");
-var Deferred = require("./component/util/deferred");
-
-var type = require('../test/testType');
-var exec = require('../test/testExec');
+var exec = require("./component/util/exec");
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -65,9 +62,6 @@ router.post("/get_datas", function(req, res, next){
 			});*/
 		}
 	});
-	
-	exec.testAfter();
-	type.testType();
 	
 	dbClient.connect(function(err, db){
 		if(!err){

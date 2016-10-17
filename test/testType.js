@@ -7,6 +7,6 @@ var testType = function(){
 	console.info("isFunction="+type.isFunction(function(){
 		return "bbb";
 	}));
-}
+};
 
-exports.testType = testType;
+testType();
