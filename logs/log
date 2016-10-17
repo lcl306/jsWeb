@@ -1,5 +1,28 @@
-[2016-10-03 20:56:13.029] [INFO] fileLog - GET /bmap
-[2016-10-03 20:56:13.068] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
-[2016-10-03 20:56:13.069] [INFO] fileLog - GET /javascripts/base.js
-[2016-10-03 20:56:13.229] [DEBUG] fileLog - aaa
-[2016-10-03 20:56:13.233] [INFO] fileLog - POST /bmap/get_datas
+[2016-10-06 15:19:54.342] [ERROR] fileLog - [logger] GET /favicon.ico throw error 1 times, Error: Not Found
+[2016-10-06 15:19:54.403] [INFO] fileLog - GET /favicon.ico
+[2016-10-06 15:19:55.563] [INFO] fileLog - GET /bmap
+[2016-10-06 15:19:55.597] [INFO] fileLog - GET /javascripts/base.js
+[2016-10-06 15:19:55.597] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
+[2016-10-06 15:19:55.762] [INFO] fileLog - POST /bmap/get_datas
+[2016-10-06 15:19:55.986] [ERROR] fileLog - [logger] GET /favicon.ico throw error 1 times, Error: Not Found
+[2016-10-06 15:19:55.996] [INFO] fileLog - GET /favicon.ico
+[2016-10-06 15:20:06.450] [ERROR] fileLog - [logger] POST /bmap/save_shop throw error 1 times, Error: Not Found
+[2016-10-06 15:20:06.456] [INFO] fileLog - POST /bmap/save_shop
+[2016-10-06 15:21:49.636] [INFO] fileLog - GET /bmap
+[2016-10-06 15:21:49.663] [INFO] fileLog - GET /javascripts/base.js
+[2016-10-06 15:21:49.665] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
+[2016-10-06 15:21:49.811] [INFO] fileLog - POST /bmap/get_datas
+[2016-10-06 15:21:57.784] [INFO] fileLog - POST /bmap/save_shop
+[2016-10-06 15:22:35.860] [INFO] fileLog - GET /bmap
+[2016-10-06 15:22:35.881] [INFO] fileLog - GET /javascripts/base.js
+[2016-10-06 15:22:35.881] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
+[2016-10-06 15:22:36.033] [INFO] fileLog - POST /bmap/get_datas
+[2016-10-06 15:22:42.531] [INFO] fileLog - POST /bmap/save_shop
+[2016-10-06 15:23:27.439] [INFO] fileLog - POST /bmap/save_shop
+[2016-10-06 15:23:37.921] [INFO] fileLog - GET /bmap
+[2016-10-06 15:23:37.946] [INFO] fileLog - GET /javascripts/base.js
+[2016-10-06 15:23:37.947] [INFO] fileLog - GET /javascripts/jquery.json-2.2.min.js
+[2016-10-06 15:23:38.079] [INFO] fileLog - POST /bmap/get_datas
+[2016-10-06 15:23:48.509] [INFO] fileLog - POST /bmap/save_shop
+[2016-10-06 15:24:50.020] [DEBUG] fileLog - 而非
+[2016-10-06 15:24:50.027] [INFO] fileLog - POST /bmap/save_shop
