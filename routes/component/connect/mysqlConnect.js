@@ -82,6 +82,7 @@ MyCon = function(options){
 					funcs.push(func);
 				});
 				// 顺序执行函数数组，有点像java的concurrent， 这里的result就是cb(null, result)中的result;err是cb(err, null);中的err
+				// 传入的func只有一个callback参数，顺序执行所有的func；如果有err，则不执行其余func，转而回调；如果无err，顺序执行所有func，再回调
 				async.series(funcs, function(err, result){
 					if(err){
 						connection.rollback(function(){
