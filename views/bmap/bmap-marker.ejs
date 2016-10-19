@@ -18,10 +18,6 @@
 	<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
 	<!-- marker添加 -->
 	<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool_min.js"></script>
-	<!-- 加载城市列表 -->
-	<script type="text/javascript" src="http://api.map.baidu.com/library/CityList/1.2/src/CityList_min.js"></script>
-	<!-- RichMarker -->
-	<script type="text/javascript" src="http://api.map.baidu.com/library/RichMarker/1.2/src/RichMarker_min.js"></script>
 	<!-- MarkerClusterer -->
 	<script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
 	<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
@@ -44,59 +40,6 @@
 			line-height:28px;
 		}
 
-		/*cityList*/
-		.cityList{
-			height: 320px;
-			width:372px;
-			overflow-y:auto;
-		}
-		.sel_container{
-			z-index:9999;
-			font-size:12px;
-			position:absolute;
-			right:0px;
-			top:0px;
-			width:140px;
-			background:rgba(255,255,255,0.8);
-			height:30px;
-			line-height:30px;
-			padding:5px;
-		}
-		.map_popup {
-			position: absolute;
-			z-index: 200000;
-			width: 382px;
-			height: 344px;
-			right:0px;
-			top:40px;
-		}
-		.map_popup .popup_main { 
-			background:#fff;
-			border: 1px solid #8BA4D8;
-			height: 100%;
-			overflow: hidden;
-			position: absolute;
-			width: 100%;
-			z-index: 2;
-		}
-		.map_popup .title {
-			background: url("http://map.baidu.com/img/popup_title.gif") repeat scroll 0 0 transparent;
-			color: #6688CC;
-			font-weight: bold;
-			height: 24px;
-			line-height: 25px;
-			padding-left: 7px;
-		}
-		.map_popup button {
-			background: url("http://map.baidu.com/img/popup_close.gif") no-repeat scroll 0 0 transparent;
-			cursor: pointer;
-			height: 12px;
-			position: absolute;
-			right: 4px;
-			top: 6px;
-			width: 12px;
-		}
-
 		/*infowindow*/
 		.infoWinContent{font-size:12px;}
 		.infoWinContent .title{background:url(title.jpg) no-repeat;height:42px;width:272px;}
@@ -115,7 +58,7 @@
 			z-index:9999;
 			font-size:12px;
 			position:absolute;
-			left:100px;
+			left:200px;
 			top:20px;
 			width:300px;
 		}
@@ -123,15 +66,6 @@
 </head>
 <body>
 	<div id="l-map"></div>
-	<!--城市列表-->
-	<div class="sel_container"><strong id="curCity">上海市</strong> [<a id="curCityText" href="javascript:void(0)">更换城市</a>]</div>
-	<div class="map_popup" id="cityList" style="display:none;">
-		<div class="popup_main">
-			<div class="title">城市列表</div>
-			<div class="cityList" id="citylist_container"></div>
-			<button id="popup_close"></button>
-		</div>
-	</div>
 	<div class="exContainer">检索内容：<input type="text" id="searchContent" size="10"/> <input type="button" id="searchPoint" value="检索"/>
 	<input type="button" value="店铺添加" id="edtBtn" />
 	<!--<input type="button" value="关闭添加标注" onclick="mkrTool.close()" />--></div>
@@ -153,16 +87,29 @@
 	$("#edtBtn").click(function(){
 		document.location.href = "/bmap/edit";
 	});
-
+	
+	//http://developer.baidu.com/map/custom/设置后，点击“查看JSON”，获得styleJson
+	var styleJson =[
+     {
+               "featureType": "road",
+               "elementType": "all",
+               "stylers": {
+                         "visibility": "off"
+               }
+     }
+	]
 	// 百度地图API功能
-	var map = new BMap.Map("l-map");    // 创建Map实例
+	var map = new BMap.Map("l-map", {enableMapClick:false});    // 创建Map实例，关闭地图可点功能
+	map.setMapStyle({styleJson:styleJson});
 	//var point = new BMap.Point(116.403694,39.927552); //北京
-	var point = new BMap.Point(121.50, 31.22); //上海
-	map.centerAndZoom(point, 14); // 定位中心点（经度、纬度）,显示范围（1是整个地球，越大越精细）
-	map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+	var point = new BMap.Point(108.923611, 34.540833); //34°32′27.00″，东经108°55′25.00， 中国的中心
+	map.centerAndZoom(point, 5); // 定位中心点（经度、纬度）,显示范围（1是整个地球，越大越精细），一般范围是14
+	//map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
 	map.setCurrentCity("上海");          // 设置地图显示的城市 此项是必须设置的
 	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
 	map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+	map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));// 左上角，添加比例尺
+	
 	var mapHandler = function(){
 		console.debug(this);
 	}
@@ -173,21 +120,44 @@
 	map.addEventListener("click", mapHandler);
 	map.removeEventListener("click",mapHandler);
 	map.addEventListener("dragend", mapHandler);
+	
+	map.addControl(new BMap.CityListControl({  //城市列表控件
+	    anchor: BMAP_ANCHOR_TOP_RIGHT,
+	    offset: new BMap.Size(10, 20)
+	    // 切换城市之间事件
+	    // onChangeBefore: function(){
+	    //    console.info('before');
+	    // },
+	    // 切换城市之后事件
+	    // onChangeAfter:function(){
+	    //   console.info('after');
+	    // }
+	}));
     
 	/////////////////////////////////////////////////////////////////marker
+	var markers = [];
 	
 	function addMarker(lng,lat,win){
 		var marker = new BMap.Marker(new BMap.Point(lng,lat));
 		//marker.enableDragging();
 		markerWin(marker, win);
 		map.addOverlay(marker);
+		markers.push(marker);
 		return marker;
+	}
+	
+	function delMarkers(){
+		$(markers).each(function(){
+			map.removeOverlay(this);
+		});
+		markers.length = 0;  //清空数组
 	}
 
 	function markerWin(marker, win){
 		var winHandler = function(e){
 			if(e.target===e.currentTarget){
 				marker.openInfoWindow(win);
+				e.domEvent.stopPropagation();  //百度地图阻止事件冒泡
 			}
 		};
 		marker.addEventListener("click", winHandler);
@@ -263,6 +233,8 @@
 		return w;
 	}
 	
+	var datas = null;
+	
 	$.post("/bmap/get_datas",{}, function(ds){
 		/*var shop1 =ds[0];
 		var shop2 =ds[1];
@@ -277,40 +249,76 @@
 		var pixs2 = [shop2.pix,shop4.pix];
 		var wins2 = [getWindowContent(shop2.title,shop2.detail),getWindowContent(shop4.title,shop4.detail)];
 		addMarkerCluster(pixs2,wins2);*/
-		$(ds).each(function(){
+		/*$(ds).each(function(){
 			addMarker(this.pix.x,this.pix.y,getWindowContent(this.title,this.detail));
+		});*/
+		datas = ds;
+	});
+	
+	map.addEventListener("zoomend", function(){
+		if(map.getZoom()>5){
+			if(markers.length==0){
+				console.info("add all markers");
+				$(datas).each(function(){
+					addMarker(this.pix.x,this.pix.y,getWindowContent(this.title,this.detail));
+				});
+			}
+		}else{
+			delMarkers();
+		}
+	});
+	
+	//////////////////////////////////////////////////////////////////////////////////////////地址逆解析
+	var geoc = new BMap.Geocoder();
+	map.addEventListener("click", function(e){
+		geoc.getLocation(e.point, function(rs){
+			var addComp = rs.addressComponents;
+			alert(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
 		});
 	});
-
-   ///////////////////////////////////////////////////////////////////////////////////////城市list
-
-	var myCl = new BMapLib.CityList({container : "citylist_container", map : map});
-
-	// 给城市点击时，添加相关操作
-	myCl.addEventListener("cityclick", function(e){
-		// 修改当前城市显示
-		document.getElementById("curCity").innerHTML = e.name;
-		// 点击后隐藏城市列表
-		document.getElementById("cityList").style.display = "none";
+	
+	//////////////////////////////////////////////////////////////////////////////////////////添加覆盖物
+	var marker = new BMap.Marker(point);
+	map.addOverlay(marker);
+	marker.addEventListener("click", function(e){
+		removeCircles();
+		addCircle(point, 300000, "green");
+		addCircle(point, 400000, "blue");
+		addCircle(point, 500000, "green");
+		e.domEvent.stopPropagation();  //百度地图阻止事件冒泡
 	});
-	// 给“更换城市”链接添加点击操作
-	document.getElementById("curCityText").onclick = function() {
-		var cl = document.getElementById("cityList");
-		if (cl.style.display == "none") {
-			cl.style.display = "";
-		} else {
-			cl.style.display = "none";
-		}	
-	};
-	// 给城市列表上的关闭按钮添加点击操作
-	document.getElementById("popup_close").onclick = function() {
-		var cl = document.getElementById("cityList");
-		if (cl.style.display == "none") {
-			cl.style.display = "";
-		} else {
-			cl.style.display = "none";
-		}	
-	};
+	
+	var bs = map.getBounds();   //获取可视区域
+	var bssw = bs.getSouthWest();   //可视区域左下角
+	var bsne = bs.getNorthEast();   //可视区域右上角
+	var rectangle = new BMap.Polygon([
+		new BMap.Point(bssw.lng,bssw.lat),
+		new BMap.Point(bsne.lng,bssw.lat),
+		new BMap.Point(bsne.lng,bsne.lat),
+		new BMap.Point(bssw.lng,bsne.lat)
+	], {fillColor:"black", strokeColor:"black", strokeWeight: 1 ,fillOpacity: 0.5, strokeOpacity: 0.5});  //创建矩形， stroke是边线
+	map.addOverlay(rectangle);
+	map.removeOverlay(rectangle);
+	
+	var shapes = [];
+	function addCircle(p, radius, color){
+		//radius为半径，单位为米
+		var circle = new BMap.Circle(p,radius,{fillColor:color, strokeColor:color, strokeWeight:1, fillOpacity: 0.2, strokeOpacity:0.2}); //创建圆
+		circle.point = p;
+		circle.addEventListener("click", function(e){
+			removeCircles();
+			e.domEvent.stopPropagation();
+		});
+		map.addOverlay(circle);
+		shapes.push(circle);
+	}
+	
+	function removeCircles(){
+		$(shapes).each(function(){
+			map.removeOverlay(this);
+			shapes.length = 0;
+		});
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	function getSumContent(datas){
