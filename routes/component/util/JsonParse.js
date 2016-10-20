@@ -49,7 +49,7 @@ JsonParse = function(){
 	
 	JsonParseBase.call(this); //将JsonParseBase的所有上下文copy给JsonParse，以继承JsonParseBase中的非prototype的属性和方法
 	
-	this.preIdxArr = [];
+	this.preIdxArr = []; //由于module编译后，会被V8缓存，所以var jsonParse = new JsonParse();后，jsonParse.preIdxArr中的对象不会被释放
 	
 	JsonParse.prototype.setTwigs = function(branch, twigsName, idx, level){
 		level = level || 0;  //如果undefined，就赋值0

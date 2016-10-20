@@ -1,10 +1,9 @@
 Type = function(){
 	
-	var toString = Object.prototype.toString;
 	// isType是工厂函数，返回生成的函数
 	var _isType = function(type){
 		return function(obj){
-			return toString.call(obj) === '[object '+type+']';
+			return Object.prototype.toString.call(obj) === '[object '+type+']';
 		};
 	};
 	

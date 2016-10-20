@@ -33,7 +33,7 @@
 		}
 		#l-map {
 			width:100%; 
-			height:700px;
+			height:100%;
 			overflow: hidden;
 		}
 		li{
@@ -62,6 +62,8 @@
 			top:20px;
 			width:300px;
 		}
+		
+		.anchorBL{ display:none; }  /*去掉百度logo*/ 
 	</style>
 </head>
 <body>
@@ -89,21 +91,19 @@
 	});
 	
 	//http://developer.baidu.com/map/custom/设置后，点击“查看JSON”，获得styleJson
-	var styleJson =[
-     {
-               "featureType": "road",
-               "elementType": "all",
-               "stylers": {
-                         "visibility": "off"
-               }
-     }
-	]
+	var mapStyleS =[{"featureType": "road","elementType": "geometry","stylers": {"color": "#f9cb9c","weight": "0.1","visibility": "on"}},
+     					{"featureType": "administrative","elementType": "geometry","stylers": {"weight": "2.4"}}];
+	var mapStyleM =[{"featureType": "road","elementType": "geometry","stylers": {"color": "#f9cb9c","weight": "0.1","visibility": "on"}},
+ 					{"featureType": "administrative","elementType": "geometry","stylers": {"weight": "1.8"}}];
+	/*var mapStyleM =[{"featureType": "road","elementType": "geometry","stylers": {"visibility": "off"}},
+	                  {"featureType": "administrative","elementType": "geometry","stylers": {"weight": "2.4"}}];*/
+	var mapStyleB =[{"featureType": "administrative","elementType": "geometry","stylers": {"weight": "1.0"}}];
 	// 百度地图API功能
 	var map = new BMap.Map("l-map", {enableMapClick:false});    // 创建Map实例，关闭地图可点功能
-	map.setMapStyle({styleJson:styleJson});
+	map.setMapStyle({styleJson:mapStyleM});
 	//var point = new BMap.Point(116.403694,39.927552); //北京
 	var point = new BMap.Point(108.923611, 34.540833); //34°32′27.00″，东经108°55′25.00， 中国的中心
-	map.centerAndZoom(point, 5); // 定位中心点（经度、纬度）,显示范围（1是整个地球，越大越精细），一般范围是14
+	map.centerAndZoom(point, 6); // 定位中心点（经度、纬度）,显示范围（1是整个地球，越大越精细），一般范围是14
 	//map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
 	map.setCurrentCity("上海");          // 设置地图显示的城市 此项是必须设置的
 	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
@@ -121,6 +121,17 @@
 	map.removeEventListener("click",mapHandler);
 	map.addEventListener("dragend", mapHandler);
 	
+	/*map.addEventListener("zoomend", function(){
+		if(map.getZoom()<=5){
+			map.setMapStyle({styleJson:mapStyleB});
+		}else if(map.getZoom()==6){
+			map.setMapStyle({styleJson:mapStyleM});
+		}else{
+			map.setMapStyle({styleJson:mapStyleS});
+		}
+	});*/
+	
+	/////////////////////////////////////////////////////////////////城市控件
 	map.addControl(new BMap.CityListControl({  //城市列表控件
 	    anchor: BMAP_ANCHOR_TOP_RIGHT,
 	    offset: new BMap.Size(10, 20)
@@ -278,15 +289,32 @@
 	});
 	
 	//////////////////////////////////////////////////////////////////////////////////////////添加覆盖物
-	var marker = new BMap.Marker(point);
-	map.addOverlay(marker);
-	marker.addEventListener("click", function(e){
-		removeCircles();
-		addCircle(point, 300000, "green");
-		addCircle(point, 400000, "blue");
-		addCircle(point, 500000, "green");
-		e.domEvent.stopPropagation();  //百度地图阻止事件冒泡
-	});
+	addRadar(point);
+	addRadar(new BMap.Point(109.923611, 35.540833));
+	
+	function addRadar(point){
+		var marker = new BMap.Marker(point);
+		map.addOverlay(marker);
+		marker.addEventListener("click", function(e){
+			if(selfShapes(point).length==0){
+				removeCircles(point);
+				addCircle(point, 300000, "green");
+				addCircle(point, 400000, "blue");
+				addCircle(point, 500000, "green");
+				e.domEvent.stopPropagation();  //百度地图阻止事件冒泡
+			}else{
+				removeCircles(point);
+				e.domEvent.stopPropagation();
+			}
+		});
+		var items = [{title:"<font size=-1>删除</font>", callback:function(e, ee, marker){
+			map.removeOverlay(marker);
+		}},{title:"项目",callback:function(marker){
+			var datas = ["PCR","ELISA"];
+			alert(datas.join(","));
+		}}];
+		addContextMenu(marker, items);
+	}
 	
 	var bs = map.getBounds();   //获取可视区域
 	var bssw = bs.getSouthWest();   //可视区域左下角
@@ -305,19 +333,44 @@
 		//radius为半径，单位为米
 		var circle = new BMap.Circle(p,radius,{fillColor:color, strokeColor:color, strokeWeight:1, fillOpacity: 0.2, strokeOpacity:0.2}); //创建圆
 		circle.point = p;
-		circle.addEventListener("click", function(e){
+		/*circle.addEventListener("click", function(e){
 			removeCircles();
 			e.domEvent.stopPropagation();
-		});
+		});*/
 		map.addOverlay(circle);
 		shapes.push(circle);
 	}
 	
-	function removeCircles(){
-		$(shapes).each(function(){
-			map.removeOverlay(this);
-			shapes.length = 0;
+	function removeCircles(point){
+		var idxs = [];
+		$(shapes).each(function(idx, item){
+			if(!point || this.point===point){
+				map.removeOverlay(this);
+				idxs.push(idx);
+			}
 		});
+		if(idxs.length>0) shapes.splice(idxs[0], idxs.length);
+		//shapes.length = 0;
+	}
+	
+	function selfShapes(point){
+		var ss = [];
+		$(shapes).each(function(){
+			if(this.point==point){
+				ss.push(this);
+			}
+		});
+		return ss;
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////添加右键菜单
+	function addContextMenu(marker, items){
+		var markerMenu=new BMap.ContextMenu();
+		$(items).each(function(){
+			markerMenu.addItem(new BMap.MenuItem(this.title,this.callback.bind(marker)));
+		});
+		console.info(markerMenu);
+		marker.addContextMenu(markerMenu);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
