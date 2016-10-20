@@ -7,7 +7,7 @@ var db = require('./component/connect/mysqlConnect');
 var dbClient = require('./component/connect/mongoConnect').dbClient;
 var bmapUtil = require("./bmap-util");
 var exec = require("./component/util/exec");
-var fs = require("fs");
+var stream = require("./component/util/stream");
 
 //app.js中：var bmaps = require('./routes/bmap'); app.use('/bmap', bmaps); router.get的根目录是/bmap
 router.get("/", function(req, res, next){
@@ -79,13 +79,13 @@ router.post("/get_datas", function(req, res, next){
 });
 
 router.get("/down", function(req, res, next){
-	var filename = '../test/testType.js';
-	var reader = fs.createReadStream(filename);
-	//application/msexcel         //excel文件
-	//application/octet-stream    //pdf、txt文件
-	res.setHeader('Content-Type', 'application/octet-stream; charset=utf-8');
-	res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-	reader.pipe(res);
+	//var filename = '../test/testType.js';
+	var filename = 'Y:/与霍金一起了解宇宙.rmvb';
+	stream.outTxt(req, res, filename, 'utf-8');
+	//var filename = '../test/nodejs详解.xlsx';
+	//stream.outExcel(req, res, filename, 'utf-8');
+	//var filename = '../test/深入浅出Node.js.pdf';
+	//stream.outPdf(req, res, filename, 'utf-8');
 });
 
 function getData1(){
