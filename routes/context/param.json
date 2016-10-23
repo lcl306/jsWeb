@@ -1,0 +1,10 @@
+{
+	"mysqlCon":{
+		"host":"127.0.0.1",
+		"user":"root",
+		"password":"",
+		"database":"nodejs"
+	},
+	"mongoCon":"mongodb://127.0.0.1:27001/test",
+	"logDir":"C:/work/eclipse_workspace/jsWeb/logs"
+}

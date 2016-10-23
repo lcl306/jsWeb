@@ -1,8 +1,9 @@
 var mongoClient = require("mongodb").MongoClient;
 var logger = require('../register/logger').logger;
 //var exec = require('../util/exec');
-var Deferred = require('../util/deferred');
+//var Deferred = require('../util/deferred');
 var Q = require('q');
+var param = require('../../context/param.json');
 
 /**
  * http://mongodb.github.io/node-mongodb-native/api-generated/
@@ -56,6 +57,6 @@ DbClient = function(url){
 	};
 };
 
-var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
-//var dbClient = new DbClient("mongodb://127.0.0.1:27001/test");
+//var dbClient = new DbClient("mongodb://test11:123456@127.0.0.1:27017/test");
+var dbClient = new DbClient(param.mongoCon);
 exports.dbClient = dbClient;

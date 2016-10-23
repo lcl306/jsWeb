@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var logger = require('../register/logger').logger;
 var async = require("async");
+var param = require("../../context/param.json");
 
 MyCon = function(options){
 	
@@ -127,11 +128,11 @@ MyCon = function(options){
 
 var myCon = new MyCon({
 	// connection 选项
-	host     : "127.0.0.1",
-	user     : "ksk",
-	password : "123456",
+	host     : param.mysqlCon.host,
+	user     : param.mysqlCon.user,
+	password : param.mysqlCon.password,
 	port     : "3306",
-	database : "nodejs",
+	database : param.mysqlCon.database,
 	supportBigNumbers : true, //数据库支持bigint或decimal类型列时，需要设此option为true （默认：false）
 	//charset：连接字符集（默认：'UTF8_GENERAL_CI'，注意字符集的字母都要大写）
 	//connectTimeout：连接超时（默认：不限制；单位：毫秒）
