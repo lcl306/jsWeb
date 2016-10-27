@@ -298,9 +298,9 @@
 		marker.addEventListener("click", function(e){
 			if(selfShapes(point).length==0){
 				removeCircles(point);
-				addCircle(point, 300000, "green");
-				addCircle(point, 400000, "blue");
-				addCircle(point, 500000, "green");
+				addCircle(point, 240000, "green");
+				addCircle(point, 500000, "blue");
+				//addCircle(point, 500000, "green");
 				e.domEvent.stopPropagation();  //百度地图阻止事件冒泡
 			}else{
 				removeCircles(point);
