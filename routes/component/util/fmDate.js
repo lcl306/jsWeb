@@ -21,4 +21,36 @@ function format(date, formatStr){
 	return str;   
 };
 
+function add(date, part, value) {
+	if(typeof date =="string") date = new Date(date);
+    value *= 1;  
+    if (isNaN(value)) {  
+        value = 0;  
+    }  
+    switch (part) {  
+        case "y":  
+            date.setFullYear(date.getFullYear() + value);  
+            break;  
+        case "m":  
+            date.setMonth(date.getMonth() + value);  
+            break;  
+        case "d":  
+            date.setDate(date.getDate() + value);  
+            break;  
+        case "h":  
+            date.setHours(date.getHours() + value);  
+            break;  
+        case "n":  
+            date.setMinutes(date.getMinutes() + value);  
+            break;  
+        case "s":  
+            date.setSeconds(date.getSeconds() + value);  
+            break;  
+        default:  
+   
+    }
+    return date;
+} 
+
 exports.format=format;
+exports.add=add;
