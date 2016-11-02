@@ -234,6 +234,7 @@
 	});
 
 	///////////////////////////////////////////////////////////////////////////////////////添加marker
+	//http://api.map.baidu.com/library/MarkerTool/1.2/docs/symbols/BMapLib.MarkerTool.html
 	var mkrTool = new BMapLib.MarkerTool(map, {autoClose: true, followText: "添加标注"});
 	mkrTool.addEventListener("markend", function(evt){ 
 		var marker = evt.marker;

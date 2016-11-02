@@ -292,6 +292,8 @@
 	addRadar(point);
 	addRadar(new BMap.Point(109.923611, 35.540833));
 	
+	addCircle(new BMap.Point(106.923611, 35.540833), 240000, "green");
+	
 	function addRadar(point){
 		var marker = new BMap.Marker(point);
 		map.addOverlay(marker);
