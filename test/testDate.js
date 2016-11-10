@@ -1,4 +1,4 @@
-var fmDate = require("../routes/component/util/fmDate");
+var fmDate = require("../routes/component/util/date");
 
 function testMonth(){
 	console.info(fmDate.format(fmDate.add("2016-10-20", "m", 2),"yyyy-MM-dd"));
