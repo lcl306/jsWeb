@@ -54,7 +54,7 @@ function overDotFigure(word, figure){
 
 function notEmpty(word){
 	var result={pass:true};
-	if(typeof word =='undefined' || type.isString(word) && word.trim()==''){
+	if(typeof word =='undefined' || word==null || type.isString(word) && word.trim()==''){
 		result.pass = false;
 	}
 	return result;

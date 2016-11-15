@@ -3,6 +3,7 @@ var chker = require("../routes/component/check/checker");
 function testChk(){
 	var a;
 	var params = {e:true,w:true,f:10};
+	console.info(chker.check(null, '测试', params));
 	console.info(chker.check('', '测试', params));
 	console.info(chker.check('  ', '测试', params));
 	console.info(chker.check(a, '测试', params));
