@@ -4,40 +4,27 @@
     <title>chatClient.html</title>
     <meta name="content-type" content="text/html; charset=UTF-8">
     <script src="/javascripts/socket.io.js"></script>
+    <script src="/javascripts/chatClient.js"></script>
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
 	<script>
 	        $(function(){
 	        	var $message_list = $('#message_list');
-	            var socket = io.connect('http://localhost:3355');
-	            socket.on('connect', function (data) {
-	                console.log(data);  
-	            });
-	            var uin = false;
-	            $("#send").click(function(e){
+	        	var chater = new Chater(defSocketUrl, function(data){
+	        		$message_list.append('<li>'+data+'</li>');
+	        	});
+	        	$("#send").click(function(e){
 	            	var from=$('#user_name').val(), msg=$('#message').val(),to=$('#to').val();
-	            	if(uin){
-		                socket.emit('say',from,to,msg);
-	            	}
+	            	chater.send(from, to, msg);
 	            });
 	            $("#login").click(function(){
-	            	if(!uin){
-	            		var from=$('#user_name').val();
-		            	socket.emit('login',from);
-		            	if(!socket.onFrom){
-			            	socket.on(from, function (data) {
-			                    $message_list.append('<li>'+data.from+'说：'+data.msg+'</li>');
-			                });
-			            	socket.onFrom = true;
-		            	}
-		            	uin = true;
-	            	}
+	            	var from=$('#user_name').val();
+	            	chater.login(from, function(data){
+	            		$message_list.append('<li>'+data.from+'说：'+data.msg+'</li>');
+	            	});
 	            });
 	            $("#logout").click(function(){
-	            	if(uin){
-	            		var from=$('#user_name').val();
-	            		socket.emit('logout',from);
-	            		uin =false;
-	            	}
+	            	var from=$('#user_name').val();
+	            	chater.logout(from);
 	            });
 	        });
 	</script>

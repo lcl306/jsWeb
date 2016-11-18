@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('myWeb:server');
 var http = require('http');
 var domain = require("../routes/component/register/domain-middleware");
+var chatServer = require('../routes/component/chatroom/chatServer');
 
 /**
  * Get port from environment and store in Express.
@@ -21,6 +22,10 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+require('socket.io').listen(server).of('/chat').on( "connection", function( socket ){
+    chatServer.chat(socket);
+});
 
 /**
  * Listen on provided port, on all network interfaces.
