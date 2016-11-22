@@ -5,6 +5,9 @@
 		"password":"",
 		"database":"nodejs"
 	},
-	"mongoCon":"mongodb://127.0.0.1:27001/test",
-	"logDir":"C:/work/eclipse_workspace/jsWeb/logs"
+	"memcacheCon":"127.0.0.1:11211",
+	"mongoCon":"mongodb://test11:123456@127.0.0.1:27017/test",
+	"mongoConBak" : "mongodb://127.0.0.1:27001/test",
+	"logDir":"D:/workspace/jsWeb/logs",
+	"logDirBak":"C:/work/eclipse_workspace/jsWeb/logs"
 }
