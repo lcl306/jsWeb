@@ -17,7 +17,7 @@ function spell(message, parts){
 }
 	
 /**
- * params = {e:true,n:true,f:10}  e是否非空，n是数值，f是位数，fd是小数位数，fi是整数位数
+ * params = {e:true,n:true,f:10}  e是否非空，n是数值，f是位数，fd是小数位数，fi是整数位数，d是日期
  * */
 function check(word, name, params){
 	var result = {pass:true,message:''};
@@ -56,6 +56,13 @@ function check(word, name, params){
 			if(!r.pass){
 				result.pass = false;
 				result.message += spell(name+message.noNum);
+			}
+			break;
+		case 'd':
+			var r = chk.isDay(word);
+			if(!r.pass){
+				result.pass = false;
+				result.message += spell(name+message.noDay);
 			}
 			break;
 		}

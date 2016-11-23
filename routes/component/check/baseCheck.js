@@ -68,9 +68,26 @@ function isNum(word){
 	return result;
 }
 
+function isDay(word){
+	var result={pass:true};
+	if(type.isString(word) && word.trim()!=''){
+		var date = word.trim();
+		if(date.length<8){
+			result.pass=false;
+		}else{
+			var ds = date.replace(/\//g,'-').split('-');
+			if(new Date(date).getDate()!=ds[ds.length-1]){
+				result.pass=false;
+			}
+		}
+	}
+    return result;
+}
+
 exports.isWord = isWord;
 exports.overFigure = overFigure;
 exports.overIntFigure = overIntFigure;
 exports.overDotFigure = overDotFigure;
 exports.notEmpty = notEmpty;
 exports.isNum = isNum;
+exports.isDay = isDay;

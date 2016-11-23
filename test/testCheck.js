@@ -60,6 +60,28 @@ function testChk(){
 	console.info(chker.check('788900', '测试2', params));
 	console.info(chker.check('-788900', '测试2', params));
 	console.info(chker.check('-788900.0', '测试2', params));
+	console.info("-------------日期检查----------------");
+	params = {d:true};
+	console.info(chker.check(a,'测试2', params));
+	console.info(chker.check(null,'测试2', params));
+	console.info(chker.check("",'测试2', params));
+	console.info(chker.check("      ",'测试2', params));
+	console.info(chker.check("2016-12-12",'测试2', params));
+	console.info(chker.check("2016-13-12",'测试2', params));
+	console.info(chker.check("2016-1-12",'测试2', params));
+	console.info(chker.check("2016-12",'测试2', params));
+	console.info(chker.check("2016-01-12",'测试2', params));
+	console.info(chker.check("2016-01-2",'测试2', params));
+	console.info(chker.check("2016-02-29",'测试2', params));
+	console.info(chker.check("2014-02-29",'测试2', params));
+	console.info(chker.check("2016/02/29",'测试2', params));
+	console.info(chker.check("2014/02/29",'测试2', params));
+	console.info(chker.check("2014/1/29",'测试2', params));
+	console.info(chker.check("20140129",'测试2', params));
+	console.info(chker.check("20141/29",'测试2', params));
+	console.info(chker.check("2014//",'测试2', params));
+	console.info(chker.check("2014/1/1",'测试2', params));
+	console.info(chker.check("2014/1/100",'测试2', params));
 }
 
 testChk();
