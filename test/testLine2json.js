@@ -62,7 +62,7 @@ function testLine2json(){
 	market_sales.push(s18);
 	market_sales.push(s19);
 	
-	var sales = line2json.reform(market_sales, [{key:"area_id",arrName:"provinces", callback:function(ele, data){
+	var params = [{key:"area_id",arrName:"provinces", callback:function(ele, data){
 		ele.area_id=data.area_id;
 		ele.area_nm=data.area_nm;
 		ele.year_month=data.year_month;
@@ -76,22 +76,32 @@ function testLine2json(){
 	}}, {key:"dict_id",arrName:"signs",callback:function(ele, data){
 		ele.dict_id=data.dict_id;
 		ele.dict_name=data.dict_name;
-	}}], function(ele, data){
+	}}];
+	
+	var callback = function(ele, data){
 		ele.market_sale_id=data.market_sale_id;
 		ele.sign_status_id=data.sign_satuts_id;
 		ele.sign_status_nm=data.sign_status_nm;
 		ele.item_num=data.item_num;
-	});
+	};
 	
-	console.info(sales[0]);
-	console.info(sales[0].provinces);
-	sales[0].provinces.forEach(function(p){
-		console.info(p.dict_types);
-		p.dict_types.forEach(function(d){
-			console.info(d.dicts);
-			d.dicts.forEach(function(s){
-				console.info(s);
+	var print = function(data){
+		console.info(data);
+		console.info(data.provinces);
+		data.provinces.forEach(function(p){
+			console.info(p.dict_types);
+			p.dict_types.forEach(function(d){
+				console.info(d.dicts);
+				d.dicts.forEach(function(s){
+					console.info(s);
+				});
 			});
 		});
-	});
+	}
+	
+	print(line2json.reform(market_sales, params, callback)[0]);
+	console.info("------------------------------------------");
+	print(line2json.reformMap(market_sales, params, callback)[1]);
+	
+	
 }
