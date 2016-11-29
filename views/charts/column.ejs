@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>column.html</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+	<script src="/javascripts/echarts.js"></script>    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+  </head>
+  
+  <body>
+  	<div>市场销售情况</div>
+  	<div><a href="http://echarts.baidu.com/demo.html#bar-stack">示例</a>&nbsp;&nbsp;<a href="http://echarts.baidu.com/api.html#echartsInstance">API</a></div>
+  	<div id="chartsDiv1" style="width:200px;height:300px;float:left"></div>
+  	<div id="chartsDiv2" style="width:600px;height:300px;float:left"></div>
+  	<div id="chartsDiv4" style="width:300px;height:500px;float:left"></div>
+  	<div id="chartsDiv3" style="width:600px;height:800px;float:left"></div>
+    <script type="text/javascript">
+    var datas1 = [{category:"华东区",val:3000.3},{category:"华北区",val:3300},{category:"华南区",val:300}];
+    var series1=[{name:"区域", type:"bar", barWidth:20, data:[]}], category1=[];
+	$(datas1).each(function(){
+		category1.push(this.category);
+		series1[0].data.push(this.val);
+	});
+    var chart1 = echarts.init(document.getElementById('chartsDiv1'));
+    var option1 ={
+    	grid: {                //坐标线的margin
+            left: '3%', right: '4%', bottom: '3%', containLabel: true
+        },
+    	xAxis : [{type:"category", data:category1}],
+    	yAxis : [{type:"value"}],
+    	series : series1
+    };
+    chart1.setOption(option1);
+    
+    
+    var datas2= [ //使用legend（这里是ym），必须保证所有ym都存在，不能缺某个年月的
+        {category:"华东区",sales:[{ym:"201610",val:3000},{ym:"201611",val:3100},{ym:"261612",val:3200}]},
+        {category:"华北区",sales:[{ym:"201610",val:4000},{ym:"201611",val:4100},{ym:"261612",val:4200}]},
+        {category:"华南区",sales:[{ym:"201610",val:5000},{ym:"201611",val:5100},{ym:"261612",val:5200}]}
+    ];
+    var series2O={}, series2=[], legend2=[], category2=[];
+    $(datas2).each(function(){
+    	category2.push(this.category);
+    	$(this.sales).each(function(idx, el){
+    		if(!series2O[el.ym]){
+    			series2O[el.ym]={name:el.ym,type:"bar",barWidth:30,data:[el.val],
+    					label: {normal: {show:true, position:"top"}} //显示数字,没有postion居中显示，top头部显示，bottom底部显示
+    					};
+    		}else{
+    			series2O[el.ym].data.push(el.val);
+    		}
+    	});
+    });
+    for(var p in series2O){
+    	legend2.push(p);
+    	series2.push(series2O[p]);
+    }
+    var chart2 = echarts.init(document.getElementById('chartsDiv2'));
+    var option2={
+    	legend : {data:legend2},
+        xAxis : [{type:"category", data:category2}],
+        yAxis : [{type:"value"}],
+        series : series2
+    };
+    chart2.setOption(option2);
+    
+    
+    var datas3= [ 
+        {category:"华东区",sales:[{ym:"201610",dicts:[{dict_id:1,dict_name:"活体",val:3000},{dict_id:2,dict_name:"医疗",val:1300},{dict_id:3,dict_name:"用品",val:300}]},
+                               {ym:"201611",dicts:[{dict_id:1,dict_name:"活体",val:3100},{dict_id:2,dict_name:"医疗",val:1310},{dict_id:3,dict_name:"用品",val:310}]},
+                               {ym:"261612",dicts:[{dict_id:1,dict_name:"活体",val:3200},{dict_id:2,dict_name:"医疗",val:1320},{dict_id:3,dict_name:"用品",val:320}]}]},
+        {category:"华北区",sales:[{ym:"201610",dicts:[{dict_id:1,dict_name:"活体",val:4000},{dict_id:2,dict_name:"医疗",val:1400},{dict_id:3,dict_name:"用品",val:400}]},
+                               {ym:"201611",dicts:[{dict_id:1,dict_name:"活体",val:4100},{dict_id:2,dict_name:"医疗",val:1410},{dict_id:3,dict_name:"用品",val:410}]},
+                               {ym:"261612",dicts:[{dict_id:1,dict_name:"活体",val:4200},{dict_id:2,dict_name:"医疗",val:1420},{dict_id:3,dict_name:"用品",val:420}]}]},
+        {category:"华南区",sales:[{ym:"201610",dicts:[{dict_id:1,dict_name:"活体",val:5000},{dict_id:2,dict_name:"医疗",val:1500},{dict_id:3,dict_name:"用品",val:500}]},
+                               {ym:"201611",dicts:[{dict_id:1,dict_name:"活体",val:5100},{dict_id:2,dict_name:"医疗",val:1510},{dict_id:3,dict_name:"用品",val:510}]},
+                               {ym:"261612",dicts:[{dict_id:1,dict_name:"活体",val:5200},{dict_id:2,dict_name:"医疗",val:1520},{dict_id:3,dict_name:"用品",val:520}]}]}
+    ];
+    var series3O={}, series3=[], legend3=[], category3=[];
+    $(datas3).each(function(){
+    	category3.push(this.category);
+    	$(this.sales).each(function(idx, el){
+    		$(el.dicts).each(function(i, d){
+    			if(!series3O[el.ym+d.dict_name]){
+        			series3O[el.ym+d.dict_name]={name:el.ym+d.dict_name,type:"bar",barWidth:30,stack:d.dict_name,data:[d.val],label:{normal:{show:true}}};
+        		}else{
+        			series3O[el.ym+d.dict_name].data.push(d.val);
+        		}
+    		});
+    	});
+    });
+    for(var p in series3O){
+    	legend3.push(p);
+    	series3.push(series3O[p]);
+    }
+    var chart3 = echarts.init(document.getElementById('chartsDiv3'));
+    var option3={
+    	legend : {data:legend3},
+        xAxis : [{type:"category", splitLine:{show:false}, data:category3}],
+        yAxis : [{type:"value"}],
+        series : series3
+    };
+    chart3.setOption(option3);
+    
+    var datas4= [ 
+        {category:"华东区",sales:[{dict_name:"活体",val:3000},{dict_name:"医疗",val:3100},{dict_name:"用品",val:3200}]},
+        {category:"华北区",sales:[{dict_name:"活体",val:4000},{dict_name:"医疗",val:4100},{dict_name:"用品",val:4200}]},
+        {category:"华南区",sales:[{dict_name:"活体",val:5000},{dict_name:"医疗",val:5100},{dict_name:"用品",val:5200}]}
+    ];
+    var series4O={}, series4=[], legend4=[], category4=[];
+    $(datas4).each(function(){
+    	category4.push(this.category);
+    	$(this.sales).each(function(idx, el){
+    		if(!series4O[el.dict_name]){
+    			series4O[el.dict_name]={name:el.dict_name,type:"bar",barWidth:30,data:[el.val], stack:"总量", label: {normal: {show:true}} };  //stack是固定值
+    		}else{
+    			series4O[el.dict_name].data.push(el.val);
+    		}
+    	});
+    });
+    for(var p in series4O){
+    	legend4.push(p);
+    	series4.push(series4O[p]);
+    }
+    var chart4 = echarts.init(document.getElementById('chartsDiv4'));
+    var option4={
+    	grid: {                //坐标线的margin
+            left: '3%', right: '4%', bottom: '3%', containLabel: true
+        },
+    	legend : {data:legend4},
+        xAxis : [{type:"category", data:category4}],
+        yAxis : [{type:"value"}],
+        series : series4
+    };
+    chart4.setOption(option4);
+    //myChart.showLoading(); //加载动画
+    /*var option = {
+    	title :{
+    		text:"市场销售情况"
+    	},
+        tooltip : {
+            trigger: 'axis',
+            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        legend: {
+            data:['直接访问','邮件营销','联盟广告','视频广告','搜索引擎','百度','谷歌','必应','其他']  //legend必须和series.name对应
+        },
+        grid: {                //坐标线的margin
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis : [
+            {
+                type : 'category',
+                data : ['周一','周二','周三','周四','周五','周六','周日']
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        series : [
+            {
+                name:'直接访问',
+                type:'bar',
+                data:[320, 332, 301, 334, 390, 330, 320]
+            },
+            {
+                name:'邮件营销',
+                type:'bar',
+                stack: '广告',
+                data:[120, 132, 101, 134, 90, 230, 210]
+            },
+            {
+                name:'联盟广告',
+                type:'bar',
+                stack: '广告',
+                data:[220, 182, 191, 234, 290, 330, 310]
+            },
+            {
+                name:'视频广告',
+                type:'bar',
+                stack: '广告',
+                data:[150, 232, 201, 154, 190, 330, 410]
+            },
+            {
+                name:'搜索引擎',
+                type:'bar',
+                data:[862, 1018, 964, 1026, 1679, 1600, 1570],
+                markLine : {
+                    lineStyle: {
+                        normal: {
+                            type: 'dashed'
+                        }
+                    },
+                    data : [
+                        [{type : 'min'}, {type : 'max'}]
+                    ]
+                }
+            },
+            {
+                name:'百度',
+                type:'bar',
+                barWidth : 5,
+                stack: '搜索引擎',
+                data:[620, 732, 701, 734, 1090, 1130, 1120]
+            },
+            {
+                name:'谷歌',
+                type:'bar',
+                stack: '搜索引擎',
+                data:[120, 132, 101, 134, 290, 230, 220]
+            },
+            {
+                name:'必应',
+                type:'bar',
+                stack: '搜索引擎',
+                data:[60, 72, 71, 74, 190, 130, 110]
+            },
+            {
+                name:'其他',
+                type:'bar',
+                stack: '搜索引擎',
+                data:[62, 82, 91, 84, 109, 110, 120]
+            }
+        ]
+    };
+    myChart.setOption(option);*/
+    </script>
+  </body>
+</html>
