@@ -25,6 +25,7 @@ app.use(session({
 	secret: '79198',
 	name: 'myses.sid',   //这里的name值得是cookie的name，默认cookie的name是：connect.sid
 	cookie: {maxAge: 3600000 },  //设置maxAge单位ms，即30min后session和相应的cookie失效过期
+	rolling: true,       //确保只有提交请求，每次返回时都会res.setHeader('set-cookie', header)，这样只要一直操作，超过maxAge也不会过期
 	resave: false,
 	saveUninitialized: true
 }));

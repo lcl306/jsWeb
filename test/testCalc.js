@@ -57,6 +57,15 @@ function testMulti(){
 	console.info(calc.multi(-12.235,-12));
 }
 
+function testFlag(){
+	var b = null;
+	var d = "item";
+	var a = a || b || "value";  //b不能是undefined
+	console.info(a);
+	var c = d === "item";
+	console.info(c);
+}
+
 testAdd();
 console.info('--------------------');
 testSub();
@@ -64,3 +73,5 @@ console.info('--------------------');
 testDiv();
 console.info('--------------------');
 testMulti();
+console.info('--------------------');
+testFlag();
