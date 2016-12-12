@@ -14,9 +14,35 @@ var needLogin = function(path){
 	return true;
 };
 
+function isExpired(req){
+	var expires = getExpires(req);
+	if (expires && expires <= Date.now()) {
+		return true;
+	}
+	return false;
+}
+
+function getExpires(req){
+	var sess = req.session;
+	return typeof sess.cookie.expires === 'string'? new Date(sess.cookie.expires): sess.cookie.expires;
+}
+
+function isXmlHttp(req){
+	return req.headers['x-requested-with']?true:false;
+}
+
+function getCookie(req, cookieName){
+	try{
+		var cookies = cookie.parse(req.headers.cookie);
+		return cookies[cookieName];
+	}catch(e){
+		return null;
+	}
+} 
+
 module.exports = function sessionFilter(){
 	return function(req,res,next){
-		//不能拦截ajax的请求
+		console.info(getExpires(req));
 		var path = req.originalUrl;
 		if(needLogin(path) && !req.session.user){
 			logger.info("session filter, path: " +path +" session invalid");
