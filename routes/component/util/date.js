@@ -52,5 +52,14 @@ function add(date, part, value) {
     return date;
 } 
 
+function getMonthDays(month){
+	var year = new Date().getYear();
+    var sDate = new Date(year, month-1, 1);
+    var eDate = new Date(year, month, 1);
+    var days = (eDate-sDate)/(1000*60*60*24);
+    return days;
+}
+
 exports.format=format;
 exports.add=add;
+exports.getMonthDays= getMonthDays;
