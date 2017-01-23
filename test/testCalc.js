@@ -57,22 +57,6 @@ function testMulti(){
 	console.info(calc.multi(-12.235,-12));
 }
 
-function testFlag(){
-	var b;
-	var d = "item";
-	var a = a || b || "value";  //b必须是真实存在的变量，虽然可以是undefined
-	console.info(b);
-	console.info(a);
-	var c = d === "item";
-	console.info(c);
-}
-
-function testSplice(){
-	var a = [15,43,575,8686,34];
-	a.splice(2,1);
-	console.info(a);
-}
-
 testAdd();
 console.info('--------------------');
 testSub();
@@ -81,6 +65,3 @@ testDiv();
 console.info('--------------------');
 testMulti();
 console.info('--------------------');
-testFlag();
-console.info('--------------------');
-testSplice();
