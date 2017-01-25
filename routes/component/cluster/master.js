@@ -1,9 +1,6 @@
 /**
 	1）本模块模拟了nodejs中cluster模块的内容，如果用到多进程管理，请使用cluster模块
-	2）cluster模块中负载均衡的策略：
-	   cluster.schedulingPolicy = cluster.SCHED_RR     //开启Round-Robin（轮叫调度）：master接收连接，依次分发给子进程，每次分发给第i=(i+1) mod n子进程；适合IO密集型应用
-	   cluster.schedulingPolicy = cluster.SCHED_NONE   //关闭Round-Robin，采用进程抢占cpu的方式，适合cpu密集型应用
-	3）子进程状态共享，放入redies或磁盘文件的数据，如果在子进程中有copy，则该数据如果变化，子进程的copy也要变化
+	2）子进程状态共享，放入redies或磁盘文件的数据，如果在子进程中有copy，则该数据如果变化，子进程的copy也要变化
 	      可以用一个单独的进程，通过tcp或udp的方式和子进程进行联系，操作redies或磁盘中的共享数据，再通知其它子进程的copy，做相应的变化
 */
 var fork = require("child_process").fork;
