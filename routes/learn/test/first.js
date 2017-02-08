@@ -1,6 +1,6 @@
 /**
 npm -g install mocha
-mocha ./first.js
+mocha ./first.js > reportFirst.txt
 */
 var assert = require("assert");
 var fs = require('fs');
