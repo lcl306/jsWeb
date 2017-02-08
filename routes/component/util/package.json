@@ -1,0 +1,16 @@
+{
+  "name": "row2json",
+  "version": "1.0.0",
+  "description": "ormapping util, reforms db rows to json ",
+  "main": "./line2json.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ormapping",
+    "db",
+    "json"
+  ],
+  "author": "liu changliang",
+  "license": "MIT"
+}
