@@ -28,6 +28,13 @@ Type = function(){
 	this.isNumber = function(obj){
 		return obj==parseFloat(obj,10);
 	};
+	
+	/**
+	 * type.isBuffer(obj);
+	 * */
+	this.isBuffer = function(obj){
+		return obj && typeof obj === "object" && Buffer.isBuffer(obj);
+	};
 }	
 
 module.exports = new Type();
