@@ -45,7 +45,7 @@ router.post("/showAll", function(req,res,next){
 
 router.post("/get_datas", function(req, res, next){
 	//不能用console.debug()进行调试,console.info可以
-	//console.info("aaa");
+	console.info(req.body);
 	
 	//logger.debug("[%s]aaa[%d]","bbb",98754321);
 	//throw new Error('something wrong here');  //可以被domain截获

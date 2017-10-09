@@ -25,8 +25,20 @@ function testYear(){
 	console.info(fmDate.format(fmDate.add("2017-01-01", "y", -1),"yyyy-MM-dd"));
 }
 
+function testMonthDays(){
+	console.info(fmDate.getMonthDays(2));
+	console.info(fmDate.getMonthDays(1));
+	console.info(fmDate.getMonthDays(6));
+	console.info(fmDate.getMonthDays(8));
+	console.info(fmDate.getMonthDays(11));
+	console.info(fmDate.getMonthDays(12));
+}
+
 testMonth();
 console.info("--------------------------------");
 testDay();
 console.info("--------------------------------");
 testYear();
+console.info("--------------------------------");
+testMonthDays();
+console.info("--------------------------------");
